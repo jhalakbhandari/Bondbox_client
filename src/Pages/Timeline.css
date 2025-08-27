@@ -1,0 +1,126 @@
+.timeline-container {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  background: linear-gradient(to bottom right, #fcd5ce, #ffe5d4, #fcd5ce);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 3rem 0;
+}
+
+.post-input {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2.5rem;
+}
+
+.post-input input {
+  flex: 1;
+  padding: 0.5rem 1rem;
+  border: 2px solid #fbb6ce;
+  border-radius: 1rem;
+  backdrop-filter: blur(8px);
+  background-color: rgba(255, 255, 255, 0.8);
+  outline: none;
+}
+
+.post-input button {
+  padding: 0.5rem 1.25rem;
+  border-radius: 1rem;
+  background: linear-gradient(to right, #ec4899, #f97316);
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.post-input button:hover {
+  transform: scale(1.05);
+}
+
+.relative.max-w-2xl {
+  position: relative;
+  width: 100%;
+  max-width: 42rem;
+}
+
+.timeline-line {
+  position: absolute;
+  left: 50%;
+  width: 4px;
+  height: 100%;
+  background: linear-gradient(to bottom, #f472b6, #fb923c, #f472b6);
+  transform: translateX(-50%);
+  box-shadow: 0 0 15px rgba(255, 192, 203, 0.7);
+}
+
+.post {
+  position: relative;
+  width: 50%;
+  margin-bottom: 3rem;
+}
+
+.post-left {
+  justify-content: flex-start;
+}
+
+.post-right {
+  justify-content: flex-end;
+}
+
+.post-dot {
+  position: absolute;
+  top: 0.75rem;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 50%;
+  background: linear-gradient(to right, #f472b6, #fb923c);
+  box-shadow: 0 0 12px rgba(255, 105, 180, 0.8);
+  animation: ping 1.5s infinite;
+}
+
+@keyframes ping {
+  0% {
+    transform: translateX(-50%) scale(1);
+    opacity: 1;
+  }
+  75% {
+    transform: translateX(-50%) scale(1.5);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(-50%) scale(1);
+    opacity: 0;
+  }
+}
+
+.post-content {
+  position: relative;
+  padding: 1.25rem;
+  border-radius: 1.5rem;
+  background-color: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.post-content:hover {
+  transform: scale(1.05);
+  box-shadow: 0 12px 25px rgba(251, 105, 180, 0.4);
+}
+
+.post-text {
+  color: #4b5563; /* Tailwind gray-700 */
+  word-break: break-word;
+}
+
+.post-date {
+  font-size: 0.7rem;
+  color: #9ca3af; /* gray-400 */
+  position: absolute;
+  bottom: 0.5rem;
+  right: 0.75rem;
+}
