@@ -9,21 +9,48 @@ import { useEffect, useState } from "react";
 // import Home from "./src/pages/Home";
 // import Timeline from "./pages/Timeline";
 
+// App.tsx
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [roomId, setRoomId] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
+    const storedRoomId = localStorage.getItem("roomId");
+
     setIsAuthenticated(!!token);
+    setRoomId(storedRoomId);
+    setLoading(false);
   }, []);
+
+  if (loading) return <p className="text-center mt-20">Loading...</p>;
 
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/auth" element={<Auth />} />
+        <Route
+          path="/auth"
+          element={
+            <Auth
+              onAuth={(rId) => {
+                setIsAuthenticated(true);
+                setRoomId(rId);
+              }}
+            />
+          }
+        />
         <Route
           path="/"
-          element={isAuthenticated ? <Home /> : <Navigate to="/auth" />}
+          element={
+            !isAuthenticated ? (
+              <Navigate to="/auth" />
+            ) : roomId ? (
+              <Navigate to={`/timeline/${roomId}`} />
+            ) : (
+              <Home />
+            )
+          }
         />
         <Route
           path="/timeline/:roomId"

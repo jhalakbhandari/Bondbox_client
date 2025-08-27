@@ -3,7 +3,11 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 
-export default function Auth() {
+export default function Auth({
+  onAuth,
+}: {
+  onAuth?: (roomId: string | null) => void;
+}) {
   const [mode, setMode] = useState<"login" | "signup">("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -13,26 +17,19 @@ export default function Auth() {
     try {
       const res = await axios.post(
         `${import.meta.env.VITE_API_URL}/auth/${mode}`,
-        {
-          email,
-          password,
-        }
+        { email, password }
       );
 
       localStorage.setItem("token", res.data.token);
-      // localStorage.setItem("user", JSON.stringify(res.data.user)); // stringify object
       if (res.data.roomId) {
-        navigate(`/timeline/${res.data.roomId}`);
+        localStorage.setItem("roomId", res.data.roomId);
+        onAuth?.(res.data.roomId);
+        navigate(`/timeline/${res.data.roomId}`, { replace: true });
       } else {
-        if (mode == "login") {
-          navigate("/");
-        }
+        localStorage.removeItem("roomId");
+        onAuth?.(null);
+        navigate("/", { replace: true });
       }
-      setEmail("");
-      setPassword("");
-      // if (res.data.token) {
-      //   navigate("/");
-      // }
     } catch (err: unknown) {
       if (err instanceof Error) {
         // err is now typed as Error

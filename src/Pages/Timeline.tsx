@@ -131,12 +131,12 @@ export default function Timeline() {
       </h2>
 
       {/* Post input */}
-      <div className="post-input flex flex-col sm:flex-row gap-3 mb-8 sm:mb-10 w-full max-w-md">
+      <div className="post-input flex flex-col sm:flex-row gap-3 mb-8 sm:mb-10 w-full max-w-2xl lg:max-w-3xl">
         <input
           value={text}
           onChange={(e) => setText(e.target.value)}
           placeholder="✨ Write something magical..."
-          className="rounded-xl px-4 py-2 border-2 border-pink-300 focus:outline-none focus:ring-2 focus:ring-pink-400 bg-white/80 backdrop-blur-sm w-full"
+          className="flex-grow rounded-xl px-4 py-2 border-2 border-pink-300 focus:outline-none focus:ring-2 focus:ring-pink-400 bg-white/80 backdrop-blur-sm"
         />
         <input
           type="file"
@@ -160,14 +160,15 @@ export default function Timeline() {
         {posts.map((p, i) => (
           <div
             key={p._id}
-            className={`mb-8 flex w-full flex-col sm:flex-row items-start sm:items-center ${
+            className={`mb-8 flex w-full flex-col items-center sm:flex-row ${
               i % 2 === 0 ? "sm:flex-row" : "sm:flex-row-reverse"
             }`}
           >
-            <div className="post flex flex-col sm:items-start items-center w-full sm:w-1/2 px-2">
-              <div className="post-dot w-3 h-3 rounded-full bg-pink-500 mb-2 sm:mb-0 sm:ml-0 sm:mr-0"></div>
-              <div className="post-content bg-white/80 backdrop-blur-sm rounded-xl p-4 shadow-md w-full break-words">
-                {p.text && <p className="post-text text-gray-800">{p.text}</p>}
+            <div className="post flex flex-col w-full sm:w-1/2 px-2">
+              <div className="post-content bg-white/80 backdrop-blur-sm rounded-xl p-4 shadow-md w-full break-words ">
+                {p.text && (
+                  <p className="post-text text-gray-800 pb-4">{p.text}</p>
+                )}
                 {p.photo && (
                   <img
                     src={`${import.meta.env.VITE_API_URL}/uploads/${p.photo}`}
