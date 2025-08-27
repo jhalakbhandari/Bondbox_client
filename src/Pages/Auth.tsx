@@ -47,74 +47,76 @@ export default function Auth({
   // }, [navigate]);
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-pink-200 via-pink-100 to-orange-200 text-center">
-      {/* Title */}
-      <motion.h1
-        initial={{ scale: 0.8, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        transition={{ duration: 0.8 }}
-        className="text-6xl md:text-7xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-orange-400 drop-shadow-[0_5px_20px_rgba(255,105,180,0.6)]"
-        style={{ fontFamily: "'Comic Neue', cursive" }}
-      >
-        BondBox
-      </motion.h1>
-
-      {/* Mode Toggle */}
-      <div className="flex gap-6 mt-10">
-        <motion.button
-          whileHover={{ scale: 1.1 }}
-          onClick={() => setMode("login")}
-          className={`px-6 py-3 rounded-2xl ${
-            mode === "login"
-              ? "bg-gradient-to-r from-pink-500 to-orange-500"
-              : "bg-gray-200 text-gray-700"
-          } text-white font-semibold shadow-lg`}
+    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-pink-200 via-pink-100 to-orange-200 px-4">
+      <div className="flex flex-col items-center text-center w-full max-w-md">
+        {/* Title */}
+        <motion.h1
+          initial={{ scale: 0.8, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ duration: 0.8 }}
+          className="text-5xl sm:text-6xl md:text-7xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-orange-400 drop-shadow-[0_5px_20px_rgba(255,105,180,0.6)]"
+          style={{ fontFamily: "'Comic Neue', cursive" }}
         >
-          Login
-        </motion.button>
-        <motion.button
-          whileHover={{ scale: 1.1 }}
-          onClick={() => setMode("signup")}
-          className={`px-6 py-3 rounded-2xl ${
-            mode === "signup"
-              ? "bg-gradient-to-r from-orange-500 to-pink-500"
-              : "bg-gray-200 text-gray-700"
-          } text-white font-semibold shadow-lg`}
-        >
-          Signup
-        </motion.button>
-      </div>
+          BondBox
+        </motion.h1>
 
-      {/* Form */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="mt-10 w-full max-w-md px-4"
-      >
-        <div className="flex flex-col gap-4">
-          <input
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="Email"
-            type="email"
-            className="p-3 rounded-xl border-2 border-pink-300 focus:outline-none focus:ring-2 focus:ring-pink-400 shadow-md"
-          />
-          <input
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="Password"
-            type="password"
-            className="p-3 rounded-xl border-2 border-orange-300 focus:outline-none focus:ring-2 focus:ring-orange-400 shadow-md"
-          />
-          <button
-            onClick={handleAuth}
-            className="px-6 py-3 rounded-xl bg-gradient-to-r from-pink-500 to-orange-500 text-white font-bold shadow-lg hover:shadow-pink-500/40"
+        {/* Mode Toggle */}
+        <div className="flex gap-6 mt-6 sm:mt-10">
+          <motion.button
+            whileHover={{ scale: 1.1 }}
+            onClick={() => setMode("login")}
+            className={`px-6 py-3 rounded-2xl ${
+              mode === "login"
+                ? "bg-gradient-to-r from-pink-500 to-orange-500"
+                : "bg-gray-200 text-gray-700"
+            } text-white font-semibold shadow-lg`}
           >
-            {mode === "login" ? "Login" : "Signup"}
-          </button>
+            Login
+          </motion.button>
+          <motion.button
+            whileHover={{ scale: 1.1 }}
+            onClick={() => setMode("signup")}
+            className={`px-6 py-3 rounded-2xl ${
+              mode === "signup"
+                ? "bg-gradient-to-r from-orange-500 to-pink-500"
+                : "bg-gray-200 text-gray-700"
+            } text-white font-semibold shadow-lg`}
+          >
+            Signup
+          </motion.button>
         </div>
-      </motion.div>
+
+        {/* Form */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="mt-6 sm:mt-10 w-full px-4"
+        >
+          <div className="flex flex-col gap-4">
+            <input
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="Email"
+              type="email"
+              className="p-3 rounded-xl border-2 border-pink-300 focus:outline-none focus:ring-2 focus:ring-pink-400 shadow-md"
+            />
+            <input
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Password"
+              type="password"
+              className="p-3 rounded-xl border-2 border-orange-300 focus:outline-none focus:ring-2 focus:ring-orange-400 shadow-md"
+            />
+            <button
+              onClick={handleAuth}
+              className="px-6 py-3 rounded-xl bg-gradient-to-r from-pink-500 to-orange-500 text-white font-bold shadow-lg hover:shadow-pink-500/40"
+            >
+              {mode === "login" ? "Login" : "Signup"}
+            </button>
+          </div>
+        </motion.div>
+      </div>
     </div>
   );
 }

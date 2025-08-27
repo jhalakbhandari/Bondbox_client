@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
-import "./Timeline.css";
+// import "./Timeline.css";
 import type { Post, Room } from "../types";
 
 export default function Timeline() {
