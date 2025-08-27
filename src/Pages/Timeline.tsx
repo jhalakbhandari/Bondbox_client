@@ -6,7 +6,7 @@ import type { Post, Room } from "../types";
 
 export default function Timeline() {
   const { roomId } = useParams();
-  const [room, setRoom] = useState<Room|null>(null);
+  const [room, setRoom] = useState<Room | null>(null);
   const [posts, setPosts] = useState<Post[]>([]);
   const [showDropdown, setShowDropdown] = useState(false);
   const [text, setText] = useState("");
@@ -88,17 +88,20 @@ export default function Timeline() {
   if (!room) return <p className="text-center text-pink-500">Loading...</p>;
 
   return (
-    <div className="timeline-container min-h-screen bg-gradient-to-br from-pink-200 via-orange-100 to-pink-300 flex flex-col items-center py-12">
+    <div className="timeline-container min-h-screen bg-gradient-to-br from-pink-200 via-orange-100 to-pink-300 flex flex-col items-center py-8 px-4 md:py-12 md:px-0">
       {/* Settings button */}
-      <div className="absolute top-6 right-6" ref={dropdownRef}>
+      <div
+        className="absolute top-4 right-4 md:top-6 md:right-6"
+        ref={dropdownRef}
+      >
         <button
-          className="w-12 h-12 rounded-full bg-white shadow-lg flex items-center justify-center hover:scale-105 transition-transform"
+          className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-white shadow-lg flex items-center justify-center hover:scale-105 transition-transform"
           onClick={() => setShowDropdown(!showDropdown)}
         >
           ⚙️
         </button>
         {showDropdown && (
-          <div className="absolute right-full top-0 mr-2 bg-white shadow-lg rounded-xl py-2 w-32 text-center">
+          <div className="absolute right-full top-0 mr-2 bg-white shadow-lg rounded-xl py-2 w-32 text-center z-50">
             <button
               className="block w-full px-4 py-2 hover:bg-pink-100 rounded-lg"
               onClick={logout}
@@ -108,7 +111,9 @@ export default function Timeline() {
             <div className="px-2 py-1">
               <p className="text-gray-600 text-sm font-semibold">Room Code</p>
               <div className="flex items-center justify-center space-x-2 mt-1">
-                <span className="text-gray-800 font-mono">{room.code}</span>
+                <span className="text-gray-800 font-mono truncate">
+                  {room.code}
+                </span>
                 <button
                   onClick={() => navigator.clipboard.writeText(room.code)}
                   className="px-2 py-1 text-xs bg-pink-200 rounded-md hover:bg-pink-300"
@@ -121,17 +126,17 @@ export default function Timeline() {
         )}
       </div>
 
-      <h2 className="text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-orange-400 drop-shadow-lg mb-10 animate-pulse">
+      <h2 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-orange-400 drop-shadow-lg mb-8 sm:mb-10 animate-pulse text-center">
         {room.name || "BondBox"}
       </h2>
 
       {/* Post input */}
-      <div className="post-input flex gap-3 mb-10">
+      <div className="post-input flex flex-col sm:flex-row gap-3 mb-8 sm:mb-10 w-full max-w-md">
         <input
           value={text}
           onChange={(e) => setText(e.target.value)}
           placeholder="✨ Write something magical..."
-          className="rounded-xl px-4 py-2 border-2 border-pink-300 focus:outline-none focus:ring-2 focus:ring-pink-400 bg-white/80 backdrop-blur-sm"
+          className="rounded-xl px-4 py-2 border-2 border-pink-300 focus:outline-none focus:ring-2 focus:ring-pink-400 bg-white/80 backdrop-blur-sm w-full"
         />
         <input
           type="file"
@@ -141,28 +146,28 @@ export default function Timeline() {
         />
         <button
           onClick={addPost}
-          className="px-5 py-2 rounded-xl text-white font-bold bg-gradient-to-r from-pink-500 to-orange-400 shadow-lg hover:scale-105 transition-transform"
+          className="px-5 py-2 rounded-xl text-white font-bold bg-gradient-to-r from-pink-500 to-orange-400 shadow-lg hover:scale-105 transition-transform w-full sm:w-auto"
         >
           Post
         </button>
       </div>
 
       {/* Timeline */}
-      <div className="relative mx-auto max-w-2xl">
-        {/* dreamy glowing line */}
-        <div className="absolute left-1/2 h-full w-1 -translate-x-1/2 bg-gradient-to-b from-pink-400 via-orange-300 to-pink-500 shadow-[0_0_15px_rgba(255,192,203,0.7)]"></div>
+      <div className="relative mx-auto w-full max-w-md sm:max-w-2xl">
+        {/* vertical line */}
+        <div className="absolute left-1/2 h-full w-1 -translate-x-1/2 bg-gradient-to-b from-pink-400 via-orange-300 to-pink-500 shadow-[0_0_15px_rgba(255,192,203,0.7)] hidden sm:block"></div>
 
         {posts.map((p, i) => (
           <div
             key={p._id}
-            className={`mb-12 flex w-full items-center ${
-              i % 2 === 0 ? "post-left" : "post-right"
+            className={`mb-8 flex w-full flex-col sm:flex-row items-start sm:items-center ${
+              i % 2 === 0 ? "sm:flex-row" : "sm:flex-row-reverse"
             }`}
           >
-            <div className="post">
-              <div className="post-dot"></div>
-              <div className="post-content">
-                {p.text && <p className="post-text">{p.text}</p>}
+            <div className="post flex flex-col sm:items-start items-center w-full sm:w-1/2 px-2">
+              <div className="post-dot w-3 h-3 rounded-full bg-pink-500 mb-2 sm:mb-0 sm:ml-0 sm:mr-0"></div>
+              <div className="post-content bg-white/80 backdrop-blur-sm rounded-xl p-4 shadow-md w-full break-words">
+                {p.text && <p className="post-text text-gray-800">{p.text}</p>}
                 {p.photo && (
                   <img
                     src={`${import.meta.env.VITE_API_URL}/uploads/${p.photo}`}
@@ -170,7 +175,7 @@ export default function Timeline() {
                     className="mt-2 rounded-xl max-w-full"
                   />
                 )}
-                <span className="post-date">
+                <span className="post-date text-xs text-gray-500 mt-1 block">
                   {new Date(p.createdAt).toLocaleString()}
                 </span>
               </div>
