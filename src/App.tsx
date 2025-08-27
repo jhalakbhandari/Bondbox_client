@@ -4,12 +4,18 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Home from "./Pages/Home";
 import Timeline from "./Pages/Timeline";
 import Auth from "./Pages/Auth";
+import { useEffect, useState } from "react";
 // import App from "./App";
 // import Home from "./src/pages/Home";
 // import Timeline from "./pages/Timeline";
 
 function App() {
-  const isAuthenticated = !!localStorage.getItem("token");
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    setIsAuthenticated(!!token);
+  }, []);
 
   return (
     <BrowserRouter>
