@@ -19,16 +19,21 @@ export default function Auth({
         `${import.meta.env.VITE_API_URL}/auth/${mode}`,
         { email, password }
       );
-
-      localStorage.setItem("token", res.data.token);
-      if (res.data.roomId) {
-        localStorage.setItem("roomId", res.data.roomId);
-        onAuth?.(res.data.roomId);
-        navigate(`/timeline/${res.data.roomId}`, { replace: true });
+      if (mode == "login") {
+        localStorage.setItem("token", res.data.token);
+        if (res.data.roomId) {
+          localStorage.setItem("roomId", res.data.roomId);
+          onAuth?.(res.data.roomId);
+          navigate(`/timeline/${res.data.roomId}`, { replace: true });
+        } else {
+          localStorage.removeItem("roomId");
+          onAuth?.(null);
+          navigate("/", { replace: true });
+        }
       } else {
-        localStorage.removeItem("roomId");
-        onAuth?.(null);
-        navigate("/", { replace: true });
+        setMode("login");
+        setEmail("");
+        setPassword("");
       }
     } catch (err: unknown) {
       if (err instanceof Error) {
