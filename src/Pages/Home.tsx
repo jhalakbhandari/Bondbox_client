@@ -3,12 +3,13 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import type { Room } from "../types";
+import { Bounce, toast } from "react-toastify";
 
 export default function Home() {
   const [mode, setMode] = useState(""); // "create" | "join"
   const [name, setName] = useState("");
   const [code, setCode] = useState("");
-  const [createdRoom, setCreatedRoom] = useState<Room|null>(null);
+  const [createdRoom, setCreatedRoom] = useState<Room | null>(null);
 
   const navigate = useNavigate();
 
@@ -23,7 +24,17 @@ export default function Home() {
       { headers: { Authorization: `Bearer ${token}` } } // correct headers
     );
     setCreatedRoom(res.data); // save created room info
-
+    toast("Room Created! Share the code!", {
+      position: "top-right",
+      autoClose: 200,
+      hideProgressBar: false,
+      closeOnClick: false,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "light",
+      transition: Bounce,
+    });
     // navigate(`/timeline/${res.data._id}`); // use room ID for timeline
   };
 
@@ -41,14 +52,46 @@ export default function Home() {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
-
+      toast("Enjoy Sharing!", {
+        position: "top-right",
+        autoClose: 200,
+        hideProgressBar: false,
+        closeOnClick: false,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+        transition: Bounce,
+      });
       navigate(`/timeline/${res.data._id}`);
     } catch (err: unknown) {
-      if (err instanceof Error) {
-        // err is now typed as Error
-        alert("Error: " + err.message);
+      if (axios.isAxiosError(err)) {
+        // If backend sends a proper error response (like res.status(400).json({ message: "Invalid credentials" }))
+        toast.error(err.response?.data?.message || "Something went wrong", {
+          position: "top-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          theme: "light",
+          transition: Bounce,
+        });
+      } else if (err instanceof Error) {
+        // Fallback for generic errors
+        toast.error(err.message, {
+          position: "top-right",
+          autoClose: 5000,
+          theme: "light",
+          transition: Bounce,
+        });
       } else {
-        alert("Unknown error occurred");
+        toast.error("Unknown error occurred", {
+          position: "top-right",
+          autoClose: 5000,
+          theme: "light",
+          transition: Bounce,
+        });
       }
     }
   };
