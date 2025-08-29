@@ -45,7 +45,7 @@ export default function Auth({
       } else {
         toast("Signup successful!", {
           position: "top-right",
-          autoClose: 200,
+          autoClose: 2000,
           hideProgressBar: false,
           closeOnClick: false,
           pauseOnHover: true,

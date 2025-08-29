@@ -26,7 +26,7 @@ export default function Home() {
     setCreatedRoom(res.data); // save created room info
     toast("Room Created! Share the code!", {
       position: "top-right",
-      autoClose: 200,
+      autoClose: 400,
       hideProgressBar: false,
       closeOnClick: false,
       pauseOnHover: true,
@@ -54,7 +54,7 @@ export default function Home() {
       );
       toast("Enjoy Sharing!", {
         position: "top-right",
-        autoClose: 200,
+        autoClose: 2000,
         hideProgressBar: false,
         closeOnClick: false,
         pauseOnHover: true,
