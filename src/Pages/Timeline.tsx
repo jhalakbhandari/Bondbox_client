@@ -171,7 +171,7 @@ export default function Timeline() {
                 )}
                 {p.photo && (
                   <img
-                    src={`${import.meta.env.VITE_API_URL}/uploads/${p.photo}`}
+                    src={p.photo}
                     alt="Post"
                     className="mt-2 rounded-xl max-w-full"
                   />
