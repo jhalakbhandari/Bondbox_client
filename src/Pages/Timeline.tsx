@@ -27,29 +27,28 @@ export default function Timeline() {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+  const fetchData = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) return;
 
+    const roomRes = await axios.get(
+      `${import.meta.env.VITE_API_URL}/room/${roomId}`,
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
+    setRoom(roomRes.data);
+
+    const postRes = await axios.get(
+      `${import.meta.env.VITE_API_URL}/post/${roomId}`,
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
+    setPosts(postRes.data);
+  };
   // Fetch room & posts
   useEffect(() => {
-    const fetchData = async () => {
-      const token = localStorage.getItem("token");
-      if (!token) return;
-
-      const roomRes = await axios.get(
-        `${import.meta.env.VITE_API_URL}/room/${roomId}`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-      setRoom(roomRes.data);
-
-      const postRes = await axios.get(
-        `${import.meta.env.VITE_API_URL}/post/${roomId}`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-      setPosts(postRes.data);
-    };
     fetchData();
   }, [roomId]);
 
@@ -77,6 +76,7 @@ export default function Timeline() {
     setPosts([...posts, res.data]);
     setText("");
     setPhoto(null);
+    fetchData();
   };
 
   const logout = () => {
