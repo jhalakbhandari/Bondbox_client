@@ -384,77 +384,76 @@ export default function Timeline() {
   if (!room) return <p className="text-center text-pink-500">Loading...</p>;
 
   return (
-    <div className="timeline-container min-h-screen bg-gradient-to-br from-pink-200 via-orange-100 to-pink-300 flex flex-col items-center py-8 px-4 md:py-12 md:px-0">
-      <button
-        onClick={() => {
-          setShowLoveNotesModal(true);
-          setUnreadCount(0); // ✅ reset when opening modal
-        }}
-        className="relative px-3 py-2 bg-pink-400 text-white rounded-lg shadow hover:bg-pink-500"
-      >
-        💌
-        {unreadCount > 0 && (
-          <span className="absolute -top-1 -right-1 bg-red-500 text-xs text-white rounded-full px-1">
-            {unreadCount}
-          </span>
-        )}
-      </button>
-      {/* Settings button + Dropdown */}
-      <div
-        className="absolute top-4 right-4 md:top-6 md:right-6"
-        ref={dropdownRef}
-      >
+    <div className="timeline-container min-h-screen bg-gradient-to-br from-pink-200 via-orange-100 to-pink-300 flex flex-col items-center py-8 px-4 md:py-12 md:px-0 w-full">
+      {/* Header row: Love Notes, Title, Settings */}
+
+      <div className="flex w-full max-w-4xl items-center justify-between mb-6 px-4 md:px-0">
         <button
-          className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-white shadow-lg flex items-center justify-center hover:scale-105 transition-transform"
-          onClick={() => setShowDropdown(!showDropdown)}
+          onClick={() => {
+            setShowLoveNotesModal(true);
+            setUnreadCount(0);
+          }}
+          className="relative px-3 py-2 bg-pink-400 text-white rounded-lg shadow hover:bg-pink-500"
         >
-          ⚙️
+          💌
+          {unreadCount > 0 && (
+            <span className="absolute -top-1 -right-1 bg-red-500 text-xs text-white rounded-full px-1">
+              {unreadCount}
+            </span>
+          )}
         </button>
 
-        {showDropdown && (
-          <div className="absolute right-0 top-full mt-2 bg-white shadow-lg rounded-xl py-2 w-40 text-center z-50 flex flex-col gap-2">
-            {/* Start / Finish Session */}
-            {!isSessionActive ? (
+        <h2 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-orange-400 drop-shadow-lg animate-pulse text-center flex-1">
+          {room.name || "BondBox"}
+        </h2>
+
+        <div className="relative" ref={dropdownRef}>
+          <button
+            className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-white shadow-lg flex items-center justify-center hover:scale-105 transition-transform"
+            onClick={() => setShowDropdown(!showDropdown)}
+          >
+            ⚙️
+          </button>
+          {showDropdown && (
+            <div className="absolute right-0 top-full mt-2 bg-white shadow-lg rounded-xl py-2 w-40 text-center z-50 flex flex-col gap-2">
+              {!isSessionActive ? (
+                <button
+                  className="block w-full px-4 py-2 hover:bg-pink-100 rounded-lg"
+                  onClick={() => setShowSessionModal(true)}
+                >
+                  ▶ Start Session
+                </button>
+              ) : (
+                <button
+                  className="block w-full px-4 py-2 hover:bg-red-100 rounded-lg"
+                  onClick={finishSession}
+                >
+                  ⏹ Finish Session
+                </button>
+              )}
               <button
                 className="block w-full px-4 py-2 hover:bg-pink-100 rounded-lg"
-                onClick={() => setShowSessionModal(true)}
+                onClick={logout}
               >
-                ▶ Start Session
+                Logout
               </button>
-            ) : (
-              <button
-                className="block w-full px-4 py-2 hover:bg-red-100 rounded-lg"
-                onClick={finishSession}
-              >
-                ⏹ Finish Session
-              </button>
-            )}
-
-            {/* Logout */}
-            <button
-              className="block w-full px-4 py-2 hover:bg-pink-100 rounded-lg"
-              onClick={logout}
-            >
-              Logout
-            </button>
-
-            {/* Room Code */}
-            <div className="px-2 py-1">
-              <p className="text-gray-600 text-sm font-semibold">Room Code</p>
-              <div className="flex items-center justify-center space-x-2 mt-1">
-                <span className="text-gray-800 font-mono truncate">
-                  {room.code}
-                </span>
-                <button
-                  onClick={() => navigator.clipboard.writeText(room.code)}
-                  className="px-2 py-1 text-xs bg-pink-200 rounded-md hover:bg-pink-300"
-                >
-                  Copy
-                </button>
+              <div className="px-2 py-1">
+                <p className="text-gray-600 text-sm font-semibold">Room Code</p>
+                <div className="flex items-center justify-center space-x-2 mt-1">
+                  <span className="text-gray-800 font-mono truncate">
+                    {room.code}
+                  </span>
+                  <button
+                    onClick={() => navigator.clipboard.writeText(room.code)}
+                    className="px-2 py-1 text-xs bg-pink-200 rounded-md hover:bg-pink-300"
+                  >
+                    Copy
+                  </button>
+                </div>
               </div>
             </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
 
       {/* Session Label Modal */}
@@ -492,55 +491,25 @@ export default function Timeline() {
         </div>
       )}
 
-      <h2 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-orange-400 drop-shadow-lg mb-8 sm:mb-10 animate-pulse text-center">
-        {room.name || "BondBox"}
-      </h2>
-      {/* <div className="mb-6 flex gap-2 items-center">
-        <input
-          type="text"
-          placeholder="Enter session label (e.g. Spain Trip)"
-          value={sessionLabel}
-          onChange={(e) => setSessionLabel(e.target.value)}
-          className="flex-1 px-3 py-2 border rounded-lg"
-          disabled={isSessionActive}
-        />
-        {!isSessionActive ? (
-          <button
-            onClick={startSession}
-            className="px-4 py-2 bg-green-500 text-white rounded-lg"
-          >
-            ▶ Start
-          </button>
-        ) : (
-          <button
-            onClick={finishSession}
-            className="px-4 py-2 bg-red-500 text-white rounded-lg"
-          >
-            ⏹ Finish
-          </button>
-        )}
-      </div> */}
+      {/* Love Note Modal */}
       {showLoveNotesModal && (
         <LoveNoteModal
           roomId={roomId!}
-          roomMembers={room.users || []} // ✅ now matches type
+          roomMembers={room.users || []}
           onClose={() => setShowLoveNotesModal(false)}
           fetchLoveNotes={fetchLoveNotes}
-          notes={loveNotes} // 👈 show list
+          notes={loveNotes}
         />
       )}
 
-      {/* Post input row */}
+      {/* Post input */}
       <div className="mb-8 sm:mb-10 w-full max-w-2xl lg:max-w-2xl bg-white/60 p-3 rounded-xl shadow-md">
-        {/* Text input */}
         <textarea
           value={text}
           onChange={(e) => setText(e.target.value)}
           placeholder="✨ Write something magical..."
           className="w-full rounded-lg px-4 py-2 border border-pink-300 focus:outline-none focus:ring-2 focus:ring-pink-400 bg-white/80 resize-none"
         />
-
-        {/* Media preview (only when audio recorded or file selected) */}
         {media && mediaType === "audio" && (
           <div className="mt-3">
             <audio
@@ -569,9 +538,7 @@ export default function Timeline() {
           </div>
         )}
 
-        {/* Action buttons row */}
         <div className="flex gap-3 mt-4">
-          {/* Upload button (hidden file input) */}
           {!isRecording && !media && (
             <>
               <input
@@ -598,7 +565,6 @@ export default function Timeline() {
             </>
           )}
 
-          {/* Record / Stop / Remove */}
           <div className="flex-1">
             {!isRecording && !media ? (
               <button
@@ -624,7 +590,6 @@ export default function Timeline() {
             )}
           </div>
 
-          {/* Post button */}
           <button
             onClick={addPost}
             className="flex-1 px-3 py-2 rounded-lg text-white font-bold bg-gradient-to-r from-pink-500 to-orange-400 shadow hover:scale-105 transition"
@@ -634,47 +599,40 @@ export default function Timeline() {
         </div>
       </div>
 
-      {/* Preview for selected media */}
-      {/* {media && (
-        <div className="mt-3 w-full max-w-2xl lg:max-w-3xl flex justify-start">
-          {mediaType === "photo" && (
-            <img
-              src={URL.createObjectURL(media)}
-              alt="Preview"
-              className="rounded-lg max-h-48"
-            />
-          )}
-          {mediaType === "video" && (
-            <video
-              controls
-              className="rounded-lg max-h-48"
-              src={URL.createObjectURL(media)}
-            />
-          )}
-          {mediaType === "audio" && (
-            <audio controls src={URL.createObjectURL(media)} />
-          )}
-        </div>
-      )} */}
-
       {/* Timeline */}
-      <div className="timeline">
+      {/* Timeline */}
+      <div className="timeline relative w-full max-w-5xl flex flex-col items-center space-y-12">
+        {/* Center vertical line */}
+        <div className="absolute left-1/2 top-0 bottom-0 w-1 bg-pink-400/40 transform -translate-x-1/2 z-0"></div>
+
         {timeline.map((item, idx) =>
           item.type === "session" ? (
-            <div key={idx} className="mb-10">
-              <h3 className="text-2xl font-bold text-center text-pink-600 mb-4">
+            <div key={idx} className="w-full relative z-10">
+              <h3 className="text-2xl font-bold text-center text-pink-600 mb-6 bg-orange-100 p-2 w-full max-w-md mx-auto">
                 {item.label}
               </h3>
-              {item.posts!.map((p, i) => (
-                <PostCard key={p._id} post={p} flip={i % 2 === 0} />
-              ))}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {item.posts!.map((p, i) => (
+                  <div
+                    key={p._id}
+                    className={`flex relative ${
+                      i % 2 === 0 ? "justify-start" : "justify-end"
+                    }`}
+                  >
+                    <PostCard post={p} flip={i % 2 === 0} />
+                  </div>
+                ))}
+              </div>
             </div>
           ) : (
-            <PostCard
+            <div
               key={item.post!._id}
-              post={item.post!}
-              flip={idx % 2 === 0}
-            />
+              className={`w-full relative z-10 flex ${
+                idx % 2 === 0 ? "justify-start" : "justify-end"
+              }`}
+            >
+              <PostCard post={item.post!} flip={idx % 2 === 0} />
+            </div>
           )
         )}
       </div>
