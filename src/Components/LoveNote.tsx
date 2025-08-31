@@ -1,14 +1,14 @@
 import { useState } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
-import type { User } from "../types";
+import type { Note, User } from "../types";
 
 type Props = {
   roomId: string;
   roomMembers: User[];
   onClose: () => void;
   fetchLoveNotes: () => void;
-  notes: any[]; // notes from Timeline
+  notes: Note[]; // notes from Timeline
 };
 
 export default function LoveNoteModal({
@@ -18,7 +18,7 @@ export default function LoveNoteModal({
   fetchLoveNotes,
   notes,
 }: Props) {
-  const [noteType, setNoteType] = useState<"text" | "voice" | "doodle">("text");
+  const [noteType] = useState<"text" | "voice" | "doodle">("text");
   const [noteText, setNoteText] = useState("");
   const [noteFile, setNoteFile] = useState<File | null>(null);
   const [isInstant, setIsInstant] = useState(true);
@@ -69,7 +69,7 @@ export default function LoveNoteModal({
     }
   };
 
-  const handleOpenNote = async (note: any) => {
+  const handleOpenNote = async (note: Note) => {
     const token = localStorage.getItem("token");
     if (!token) return;
 

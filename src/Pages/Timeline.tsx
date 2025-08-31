@@ -2,11 +2,11 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 // import "./Timeline.css";
-import type { Post, Room } from "../types";
+import type { Note, Post, Room } from "../types";
 import { Flip, toast } from "react-toastify";
 import PostCard from "../Components/PostCard";
 import LoveNoteModal from "../Components/LoveNote";
-import { io } from "socket.io-client";
+// import { io } from "socket.io-client";
 
 export default function Timeline() {
   const { roomId } = useParams();
@@ -26,13 +26,13 @@ export default function Timeline() {
   // const [sessions, setSessions] = useState<any[]>([]);
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
   const [showSessionModal, setShowSessionModal] = useState(false);
-  const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
+  // const [ setAudioBlob] = useState<Blob | null>(null);
   const [isRecording, setIsRecording] = useState(false);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   // const sessionId = localStorage.getItem("session");
   const [unreadCount, setUnreadCount] = useState(0);
-  const [loveNotes, setLoveNotes] = useState<any[]>([]);
-  const socketRef = useRef<Socket | null>(null);
+  const [loveNotes, setLoveNotes] = useState<Note[]>([]);
+  // const socketRef = useRef<Socket | null>(null);
 
   //Note
   // Love Notes
@@ -231,7 +231,7 @@ export default function Timeline() {
 
     socket.emit("register", userId);
 
-    socket.on("newLoveNote", (note) => {
+    socket.on("newLoveNote", (note: Note) => {
       console.log("Received new love note:", note);
       setLoveNotes((prev) => [...prev, note]);
       toast.info("💌 You received a new love note!");
@@ -350,7 +350,7 @@ export default function Timeline() {
 
       mediaRecorder.onstop = () => {
         const blob = new Blob(chunks, { type: "audio/webm" });
-        setAudioBlob(blob);
+        // setAudioBlob(blob);
         setMedia(new File([blob], "voice-note.webm", { type: "audio/webm" }));
         setMediaType("audio");
       };
@@ -371,7 +371,7 @@ export default function Timeline() {
   // Clear media
   const clearMedia = () => {
     setMedia(null);
-    setAudioBlob(null);
+    // setAudioBlob(null);
     setMediaType(null);
   };
 
