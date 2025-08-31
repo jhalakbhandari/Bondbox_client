@@ -5,6 +5,8 @@ import axios from "axios";
 import type { Post, Room } from "../types";
 import { Flip, toast } from "react-toastify";
 import PostCard from "../Components/PostCard";
+import LoveNoteModal from "../Components/LoveNote";
+import { io } from "socket.io-client";
 
 export default function Timeline() {
   const { roomId } = useParams();
@@ -27,7 +29,40 @@ export default function Timeline() {
   const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
   const [isRecording, setIsRecording] = useState(false);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
-  const sessionId = localStorage.getItem("session");
+  // const sessionId = localStorage.getItem("session");
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [loveNotes, setLoveNotes] = useState<any[]>([]);
+  const socketRef = useRef<Socket | null>(null);
+
+  //Note
+  // Love Notes
+  const [showLoveNotesModal, setShowLoveNotesModal] = useState(false);
+
+  const fetchLoveNotes = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
+    try {
+      const res = await axios.get(
+        `${import.meta.env.VITE_API_URL}/lovenote/${roomId}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      // Directly assign res.data
+      const notes = res.data || [];
+      setLoveNotes(notes);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  // Fetch love notes on mount
+  useEffect(() => {
+    fetchLoveNotes();
+  }, [roomId]);
+
   const navigate = useNavigate();
   // const timeline = [];
 
@@ -125,8 +160,10 @@ export default function Timeline() {
         headers: { Authorization: `Bearer ${token}` },
       }
     );
-    setRoom(roomRes.data);
-
+    setRoom({
+      ...roomRes.data,
+      members: roomRes.data.users,
+    });
     const postRes = await axios.get(
       `${import.meta.env.VITE_API_URL}/post/${roomId}`,
       {
@@ -180,6 +217,71 @@ export default function Timeline() {
     fetchData();
     fetchActiveSession();
   }, [roomId]);
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
+    const payload = JSON.parse(atob(token.split(".")[1]));
+    const userId = payload.id;
+
+    const socket = io(import.meta.env.VITE_API_URL, {
+      transports: ["websocket", "polling"],
+    });
+
+    socket.emit("register", userId);
+
+    socket.on("newLoveNote", (note) => {
+      console.log("Received new love note:", note);
+      setLoveNotes((prev) => [...prev, note]);
+      toast.info("💌 You received a new love note!");
+    });
+
+    return () => {
+      socket.disconnect();
+    };
+  }, []);
+
+  // useEffect(() => {
+  //   const token = localStorage.getItem("token");
+  //   if (!token) return;
+  //   console.log("token", token);
+
+  //   try {
+  //     const payloadBase64 = token.split(".")[1];
+  //     const payload = JSON.parse(atob(payloadBase64));
+  //     const userId = payload.id; // or payload._id depending on your backend
+  //     console.log("Frontend uaserId:", userId);
+
+  //     if (!userId) return;
+
+  //     // Only initialize socket once
+  //     if (!socketRef.current) {
+  //       const socket = io(`${import.meta.env.VITE_API_URL}/lovenote`, {
+  //         transports: ["websocket", "polling"], // force websocket fallback
+  //       });
+  //       socketRef.current = socket;
+
+  //       // Register user
+  //       socket.emit("register", userId);
+
+  //       // Listen for new love notes
+  //       socket.on("newLoveNote", (note) => {
+  //         console.log("Received newLoveNote:", note); // ✅ log it first
+
+  //         toast.info("💌 You received a new love note!");
+  //         fetchLoveNotes(); // refresh notes list
+  //       });
+  //     }
+
+  //     return () => {
+  //       socketRef.current?.disconnect();
+  //     };
+  //   } catch (err) {
+  //     console.error("Invalid token", err);
+  //   }
+  // }, []); // empty dependency ensures it runs only once on mount
+
   // Add new post (text/photo/both)
   const addPost = async () => {
     if (
@@ -283,7 +385,20 @@ export default function Timeline() {
 
   return (
     <div className="timeline-container min-h-screen bg-gradient-to-br from-pink-200 via-orange-100 to-pink-300 flex flex-col items-center py-8 px-4 md:py-12 md:px-0">
-      {/* Settings button */}
+      <button
+        onClick={() => {
+          setShowLoveNotesModal(true);
+          setUnreadCount(0); // ✅ reset when opening modal
+        }}
+        className="relative px-3 py-2 bg-pink-400 text-white rounded-lg shadow hover:bg-pink-500"
+      >
+        💌
+        {unreadCount > 0 && (
+          <span className="absolute -top-1 -right-1 bg-red-500 text-xs text-white rounded-full px-1">
+            {unreadCount}
+          </span>
+        )}
+      </button>
       {/* Settings button + Dropdown */}
       <div
         className="absolute top-4 right-4 md:top-6 md:right-6"
@@ -405,6 +520,15 @@ export default function Timeline() {
           </button>
         )}
       </div> */}
+      {showLoveNotesModal && (
+        <LoveNoteModal
+          roomId={roomId!}
+          roomMembers={room.users || []} // ✅ now matches type
+          onClose={() => setShowLoveNotesModal(false)}
+          fetchLoveNotes={fetchLoveNotes}
+          notes={loveNotes} // 👈 show list
+        />
+      )}
 
       {/* Post input row */}
       <div className="mb-8 sm:mb-10 w-full max-w-2xl lg:max-w-2xl bg-white/60 p-3 rounded-xl shadow-md">

@@ -1,8 +1,14 @@
 // Room type
+export type User = {
+  _id: string;
+  email: string;
+  name?: string;
+};
 export type Room = {
   _id: string;
   name: string;
   code: string;
+  users: User[];
 };
 
 // Post type
