@@ -1,6 +1,6 @@
 # 💌 BondBox
 
-**BondBox** is a private memory-sharing app designed for **two people**. It allows users to share photos, texts, and memories in a secure, intimate environment, making it easy to cherish special moments privately.
+**BondBox** is an app for two users to share photos, texts, and memories—like keeping your favorite moments in a digital box. It helps users collect and celebrate memories together, just like preserving keepsakes in a scrapbook.
 
 ---
 
