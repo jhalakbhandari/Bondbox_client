@@ -2,7 +2,7 @@ import { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Bounce, toast } from "react-toastify";
+import { Flip, toast } from "react-toastify";
 
 export default function Auth({
   onAuth,
@@ -22,7 +22,7 @@ export default function Auth({
       );
       if (mode == "login") {
         toast("Login successful!", {
-          position: "top-right",
+          position: "top-center",
           autoClose: 5000,
           hideProgressBar: false,
           closeOnClick: false,
@@ -30,7 +30,7 @@ export default function Auth({
           draggable: true,
           progress: undefined,
           theme: "light",
-          transition: Bounce,
+          transition: Flip,
         });
         localStorage.setItem("token", res.data.token);
         if (res.data.roomId) {
@@ -44,7 +44,7 @@ export default function Auth({
         }
       } else {
         toast("Signup successful!", {
-          position: "top-right",
+          position: "top-center",
           autoClose: 2000,
           hideProgressBar: false,
           closeOnClick: false,
@@ -52,7 +52,7 @@ export default function Auth({
           draggable: true,
           progress: undefined,
           theme: "light",
-          transition: Bounce,
+          transition: Flip,
         });
         setMode("login");
         setEmail("");
@@ -62,29 +62,29 @@ export default function Auth({
       if (axios.isAxiosError(err)) {
         // If backend sends a proper error response (like res.status(400).json({ message: "Invalid credentials" }))
         toast.error(err.response?.data?.message || "Something went wrong", {
-          position: "top-right",
+          position: "top-center",
           autoClose: 5000,
           hideProgressBar: false,
           closeOnClick: true,
           pauseOnHover: true,
           draggable: true,
           theme: "light",
-          transition: Bounce,
+          transition: Flip,
         });
       } else if (err instanceof Error) {
         // Fallback for generic errors
         toast.error(err.message, {
-          position: "top-right",
+          position: "top-center",
           autoClose: 5000,
           theme: "light",
-          transition: Bounce,
+          transition: Flip,
         });
       } else {
         toast.error("Unknown error occurred", {
-          position: "top-right",
+          position: "top-center",
           autoClose: 5000,
           theme: "light",
-          transition: Bounce,
+          transition: Flip,
         });
       }
     }

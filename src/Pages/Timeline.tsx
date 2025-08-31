@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 // import "./Timeline.css";
 import type { Post, Room } from "../types";
+import { Flip, toast } from "react-toastify";
 
 export default function Timeline() {
   const { roomId } = useParams();
@@ -10,8 +11,18 @@ export default function Timeline() {
   const [posts, setPosts] = useState<Post[]>([]);
   const [showDropdown, setShowDropdown] = useState(false);
   const [text, setText] = useState("");
-  const [photo, setPhoto] = useState<File | null>(null);
+  // const [photo, setPhoto] = useState<File | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  // const [photo, setPhoto] = useState<File | null>(null);
+  const [media, setMedia] = useState<File | null>(null);
+  const [mediaType, setMediaType] = useState<
+    "photo" | "video" | "audio" | null
+  >(null);
+
+  const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
+  const [isRecording, setIsRecording] = useState(false);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+
   const navigate = useNavigate();
 
   // Close dropdown when clicking outside
@@ -54,13 +65,37 @@ export default function Timeline() {
 
   // Add new post (text/photo/both)
   const addPost = async () => {
-    if (!text && !photo) return alert("Post cannot be empty");
+    if (
+      !text.trim() &&
+      !(
+        media &&
+        (mediaType === "photo" ||
+          mediaType === "video" ||
+          mediaType === "audio")
+      )
+    ) {
+      toast("You haven't created a memory yet!", {
+        position: "top-center",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: false,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+        transition: Flip,
+      });
+      return;
+    }
 
     const token = localStorage.getItem("token");
     const formData = new FormData();
     formData.append("roomId", roomId!);
     formData.append("text", text);
-    if (photo) formData.append("photo", photo);
+
+    if (media && mediaType === "photo") formData.append("photo", media);
+    if (media && mediaType === "video") formData.append("video", media);
+    if (media && mediaType === "audio") formData.append("audio", media);
 
     const res = await axios.post(
       `${import.meta.env.VITE_API_URL}/post`,
@@ -75,8 +110,46 @@ export default function Timeline() {
 
     setPosts([...posts, res.data]);
     setText("");
-    setPhoto(null);
+    clearMedia();
     fetchData();
+  };
+
+  const startRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const mediaRecorder = new MediaRecorder(stream);
+      mediaRecorderRef.current = mediaRecorder;
+      const chunks: BlobPart[] = [];
+
+      mediaRecorder.ondataavailable = (e) => {
+        if (e.data.size > 0) chunks.push(e.data);
+      };
+
+      mediaRecorder.onstop = () => {
+        const blob = new Blob(chunks, { type: "audio/webm" });
+        setAudioBlob(blob);
+        setMedia(new File([blob], "voice-note.webm", { type: "audio/webm" }));
+        setMediaType("audio");
+      };
+
+      mediaRecorder.start();
+      setIsRecording(true);
+    } catch (err) {
+      console.error("Microphone access denied", err);
+    }
+  };
+
+  // Stop recording
+  const stopRecording = () => {
+    mediaRecorderRef.current?.stop();
+    setIsRecording(false);
+  };
+
+  // Clear media
+  const clearMedia = () => {
+    setMedia(null);
+    setAudioBlob(null);
+    setMediaType(null);
   };
 
   const logout = () => {
@@ -130,27 +203,132 @@ export default function Timeline() {
         {room.name || "BondBox"}
       </h2>
 
-      {/* Post input */}
-      <div className="post-input flex flex-col sm:flex-row gap-3 mb-8 sm:mb-10 w-full max-w-2xl lg:max-w-3xl">
-        <input
+      {/* Post input row */}
+      <div className="mb-8 sm:mb-10 w-full max-w-2xl lg:max-w-2xl bg-white/60 p-3 rounded-xl shadow-md">
+        {/* Text input */}
+        <textarea
           value={text}
           onChange={(e) => setText(e.target.value)}
           placeholder="✨ Write something magical..."
-          className="flex-grow rounded-xl px-4 py-2 border-2 border-pink-300 focus:outline-none focus:ring-2 focus:ring-pink-400 bg-white/80 backdrop-blur-sm"
+          className="w-full rounded-lg px-4 py-2 border border-pink-300 focus:outline-none focus:ring-2 focus:ring-pink-400 bg-white/80 resize-none"
         />
-        <input
-          type="file"
-          accept="image/*"
-          onChange={(e) => setPhoto(e.target.files ? e.target.files[0] : null)}
-          className="rounded-xl px-2 py-1 border-2 border-pink-300 focus:outline-none focus:ring-2 focus:ring-pink-400 bg-white/80"
-        />
-        <button
-          onClick={addPost}
-          className="px-5 py-2 rounded-xl text-white font-bold bg-gradient-to-r from-pink-500 to-orange-400 shadow-lg hover:scale-105 transition-transform w-full sm:w-auto"
-        >
-          Post
-        </button>
+
+        {/* Media preview (only when audio recorded or file selected) */}
+        {media && mediaType === "audio" && (
+          <div className="mt-3">
+            <audio
+              controls
+              src={URL.createObjectURL(media)}
+              className="w-full"
+            />
+          </div>
+        )}
+        {media && mediaType === "photo" && (
+          <div className="mt-3">
+            <img
+              src={URL.createObjectURL(media)}
+              alt="Preview"
+              className="rounded-lg max-h-48"
+            />
+          </div>
+        )}
+        {media && mediaType === "video" && (
+          <div className="mt-3">
+            <video
+              controls
+              className="rounded-lg max-h-48 w-full"
+              src={URL.createObjectURL(media)}
+            />
+          </div>
+        )}
+
+        {/* Action buttons row */}
+        <div className="flex gap-3 mt-4">
+          {/* Upload button (hidden file input) */}
+          {!isRecording && !media && (
+            <>
+              <input
+                type="file"
+                id="mediaUpload"
+                accept="image/*,video/*"
+                onChange={(e) => {
+                  if (e.target.files && e.target.files[0]) {
+                    const file = e.target.files[0];
+                    setMedia(file);
+                    if (file.type.startsWith("image")) setMediaType("photo");
+                    else if (file.type.startsWith("video"))
+                      setMediaType("video");
+                  }
+                }}
+                className="hidden"
+              />
+              <label
+                htmlFor="mediaUpload"
+                className="flex-1 px-3 py-2 bg-pink-200 text-pink-800 rounded-lg text-center cursor-pointer hover:bg-pink-300"
+              >
+                📁 Upload
+              </label>
+            </>
+          )}
+
+          {/* Record / Stop / Remove */}
+          <div className="flex-1">
+            {!isRecording && !media ? (
+              <button
+                onClick={startRecording}
+                className="w-full px-3 py-2 bg-pink-500 text-white rounded-lg shadow hover:bg-pink-600"
+              >
+                🎤 Record
+              </button>
+            ) : isRecording ? (
+              <button
+                onClick={stopRecording}
+                className="w-full px-3 py-2 bg-red-500 text-white rounded-lg shadow hover:bg-red-600"
+              >
+                ⏹ Stop
+              </button>
+            ) : (
+              <button
+                onClick={clearMedia}
+                className="w-full px-3 py-2 bg-gray-300 text-black rounded-lg shadow hover:bg-gray-400"
+              >
+                ❌ Remove
+              </button>
+            )}
+          </div>
+
+          {/* Post button */}
+          <button
+            onClick={addPost}
+            className="flex-1 px-3 py-2 rounded-lg text-white font-bold bg-gradient-to-r from-pink-500 to-orange-400 shadow hover:scale-105 transition"
+          >
+            🚀 Post
+          </button>
+        </div>
       </div>
+
+      {/* Preview for selected media */}
+      {/* {media && (
+        <div className="mt-3 w-full max-w-2xl lg:max-w-3xl flex justify-start">
+          {mediaType === "photo" && (
+            <img
+              src={URL.createObjectURL(media)}
+              alt="Preview"
+              className="rounded-lg max-h-48"
+            />
+          )}
+          {mediaType === "video" && (
+            <video
+              controls
+              className="rounded-lg max-h-48"
+              src={URL.createObjectURL(media)}
+            />
+          )}
+          {mediaType === "audio" && (
+            <audio controls src={URL.createObjectURL(media)} />
+          )}
+        </div>
+      )} */}
 
       {/* Timeline */}
       <div className="relative mx-auto w-full max-w-md sm:max-w-2xl">
@@ -169,12 +347,31 @@ export default function Timeline() {
                 {p.text && (
                   <p className="post-text text-gray-800 pb-4">{p.text}</p>
                 )}
+                {/* {p.photo && (
+                  <img
+                    src={p.photo}
+                    alt="Post"
+                    className="mt-2 rounded-xl max-w-full"
+                  />
+                )} */}
                 {p.photo && (
                   <img
                     src={p.photo}
                     alt="Post"
                     className="mt-2 rounded-xl max-w-full"
                   />
+                )}
+                {p.audio && (
+                  <audio controls className="mt-2 w-full">
+                    <source src={p.audio} type="audio/mpeg" />
+                    Your browser does not support the audio element.
+                  </audio>
+                )}
+                {p.video && (
+                  <video controls className="mt-2 rounded-xl w-full max-h-96">
+                    <source src={p.video} type="video/mp4" />
+                    Your browser does not support the video tag.
+                  </video>
                 )}
                 <span className="post-date text-xs text-gray-500 mt-1 block">
                   {new Date(p.createdAt).toLocaleString()}

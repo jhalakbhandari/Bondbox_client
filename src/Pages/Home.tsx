@@ -3,7 +3,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import type { Room } from "../types";
-import { Bounce, toast } from "react-toastify";
+import { Flip, toast } from "react-toastify";
 
 export default function Home() {
   const [mode, setMode] = useState(""); // "create" | "join"
@@ -25,7 +25,7 @@ export default function Home() {
     );
     setCreatedRoom(res.data); // save created room info
     toast("Room Created! Share the code!", {
-      position: "top-right",
+      position: "top-center",
       autoClose: 400,
       hideProgressBar: false,
       closeOnClick: false,
@@ -33,7 +33,7 @@ export default function Home() {
       draggable: true,
       progress: undefined,
       theme: "light",
-      transition: Bounce,
+      transition: Flip,
     });
     // navigate(`/timeline/${res.data._id}`); // use room ID for timeline
   };
@@ -53,7 +53,7 @@ export default function Home() {
         }
       );
       toast("Enjoy Sharing!", {
-        position: "top-right",
+        position: "top-center",
         autoClose: 2000,
         hideProgressBar: false,
         closeOnClick: false,
@@ -61,36 +61,36 @@ export default function Home() {
         draggable: true,
         progress: undefined,
         theme: "light",
-        transition: Bounce,
+        transition: Flip,
       });
       navigate(`/timeline/${res.data._id}`);
     } catch (err: unknown) {
       if (axios.isAxiosError(err)) {
         // If backend sends a proper error response (like res.status(400).json({ message: "Invalid credentials" }))
         toast.error(err.response?.data?.message || "Something went wrong", {
-          position: "top-right",
+          position: "top-center",
           autoClose: 5000,
           hideProgressBar: false,
           closeOnClick: true,
           pauseOnHover: true,
           draggable: true,
           theme: "light",
-          transition: Bounce,
+          transition: Flip,
         });
       } else if (err instanceof Error) {
         // Fallback for generic errors
         toast.error(err.message, {
-          position: "top-right",
+          position: "top-center",
           autoClose: 5000,
           theme: "light",
-          transition: Bounce,
+          transition: Flip,
         });
       } else {
         toast.error("Unknown error occurred", {
-          position: "top-right",
+          position: "top-center",
           autoClose: 5000,
           theme: "light",
-          transition: Bounce,
+          transition: Flip,
         });
       }
     }

@@ -2,13 +2,13 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import "./index.css";
 import App from "./App.tsx";
-import { Bounce, ToastContainer } from "react-toastify";
+import { Flip, ToastContainer } from "react-toastify";
 // import "./App.css";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <ToastContainer
-      position="top-right"
+      position="top-center"
       autoClose={2000} // increased a bit for better UX
       hideProgressBar={false}
       newestOnTop={false}
@@ -18,7 +18,7 @@ createRoot(document.getElementById("root")!).render(
       draggable
       pauseOnHover
       theme="light"
-      transition={Bounce}
+      transition={Flip}
       toastClassName="dreamy-toast"
     />
 

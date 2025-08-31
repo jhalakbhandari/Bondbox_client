@@ -11,4 +11,6 @@ export type Post = {
   text: string;
   createdAt: string;
   photo: string;
+  audio: string;
+  video: string;
 };
