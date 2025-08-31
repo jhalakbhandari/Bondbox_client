@@ -4,6 +4,7 @@ import axios from "axios";
 // import "./Timeline.css";
 import type { Post, Room } from "../types";
 import { Flip, toast } from "react-toastify";
+import PostCard from "../Components/PostCard";
 
 export default function Timeline() {
   const { roomId } = useParams();
@@ -18,12 +19,87 @@ export default function Timeline() {
   const [mediaType, setMediaType] = useState<
     "photo" | "video" | "audio" | null
   >(null);
-
+  const [isSessionActive, setIsSessionActive] = useState(false);
+  const [sessionLabel, setSessionLabel] = useState("");
+  // const [sessions, setSessions] = useState<any[]>([]);
+  const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
+  const [showSessionModal, setShowSessionModal] = useState(false);
   const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
   const [isRecording, setIsRecording] = useState(false);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
-
+  const sessionId = localStorage.getItem("session");
   const navigate = useNavigate();
+  // const timeline = [];
+
+  // Group posts by sessionId
+  const sessionMap: Record<string, { label: string; posts: Post[] }> = {};
+  const standalonePosts: Post[] = [];
+
+  posts.forEach((p) => {
+    if (p.sessionId && p.sessionId._id) {
+      // <-- check _id, not _is
+      if (!sessionMap[p.sessionId._id]) {
+        sessionMap[p.sessionId._id] = {
+          label: p.sessionId.label || "",
+          posts: [],
+        };
+      }
+      sessionMap[p.sessionId._id].posts.push(p);
+    } else {
+      standalonePosts.push(p);
+    }
+  });
+
+  // Build timeline: sessions + standalone posts
+  const timeline: {
+    type: "session" | "post";
+    label?: string;
+    posts?: Post[];
+    post?: Post;
+  }[] = [];
+
+  // Push sessions
+  Object.values(sessionMap).forEach((s) => {
+    timeline.push({ type: "session", label: s.label, posts: s.posts });
+  });
+
+  // Push standalone posts
+  standalonePosts.forEach((p) => {
+    timeline.push({ type: "post", post: p });
+  });
+
+  // Sort by createdAt
+  timeline.sort((a, b) => {
+    const aTime =
+      a.type === "session"
+        ? new Date(a.posts![0].createdAt).getTime()
+        : new Date(a.post!.createdAt).getTime();
+    const bTime =
+      b.type === "session"
+        ? new Date(b.posts![0].createdAt).getTime()
+        : new Date(b.post!.createdAt).getTime();
+    return bTime - aTime;
+  });
+  const fetchActiveSession = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
+    try {
+      const res = await axios.get(
+        `${import.meta.env.VITE_API_URL}/session/active/${roomId}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      if (res.data) {
+        setIsSessionActive(true);
+        setCurrentSessionId(res.data._id);
+        setSessionLabel(res.data.label);
+        localStorage.setItem("session", res.data._id);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -38,6 +114,7 @@ export default function Timeline() {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
   const fetchData = async () => {
     const token = localStorage.getItem("token");
     if (!token) return;
@@ -58,11 +135,51 @@ export default function Timeline() {
     );
     setPosts(postRes.data);
   };
+  async function startSession() {
+    if (!sessionLabel.trim()) {
+      toast.error("Please enter a label for your session!");
+      return;
+    }
+
+    if (isSessionActive) return; // already active
+
+    const token = localStorage.getItem("token");
+    const res = await axios.post(
+      `${import.meta.env.VITE_API_URL}/session/start`,
+      { roomId, label: sessionLabel },
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+
+    setCurrentSessionId(res.data._id);
+    localStorage.setItem("session", res.data._id);
+    setIsSessionActive(true);
+    toast.success(`Started session: ${sessionLabel}`);
+  }
+
+  async function finishSession() {
+    if (!isSessionActive || !currentSessionId) return;
+
+    const token = localStorage.getItem("token");
+    const sessionId = localStorage.getItem("session");
+
+    await axios.post(
+      `${import.meta.env.VITE_API_URL}/session/finish/${sessionId}`,
+      {},
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+
+    setIsSessionActive(false);
+    setSessionLabel("");
+    setCurrentSessionId(null);
+    localStorage.removeItem("session");
+  }
+
   // Fetch room & posts
+  // Call it on mount
   useEffect(() => {
     fetchData();
+    fetchActiveSession();
   }, [roomId]);
-
   // Add new post (text/photo/both)
   const addPost = async () => {
     if (
@@ -92,7 +209,11 @@ export default function Timeline() {
     const formData = new FormData();
     formData.append("roomId", roomId!);
     formData.append("text", text);
+    const currentSession = localStorage.getItem("session");
 
+    if (isSessionActive) {
+      formData.append("sessionId", currentSession || ""); // <-- session created from backend
+    }
     if (media && mediaType === "photo") formData.append("photo", media);
     if (media && mediaType === "video") formData.append("video", media);
     if (media && mediaType === "audio") formData.append("audio", media);
@@ -163,6 +284,7 @@ export default function Timeline() {
   return (
     <div className="timeline-container min-h-screen bg-gradient-to-br from-pink-200 via-orange-100 to-pink-300 flex flex-col items-center py-8 px-4 md:py-12 md:px-0">
       {/* Settings button */}
+      {/* Settings button + Dropdown */}
       <div
         className="absolute top-4 right-4 md:top-6 md:right-6"
         ref={dropdownRef}
@@ -173,14 +295,35 @@ export default function Timeline() {
         >
           ⚙️
         </button>
+
         {showDropdown && (
-          <div className="absolute right-full top-0 mr-2 bg-white shadow-lg rounded-xl py-2 w-32 text-center z-50">
+          <div className="absolute right-0 top-full mt-2 bg-white shadow-lg rounded-xl py-2 w-40 text-center z-50 flex flex-col gap-2">
+            {/* Start / Finish Session */}
+            {!isSessionActive ? (
+              <button
+                className="block w-full px-4 py-2 hover:bg-pink-100 rounded-lg"
+                onClick={() => setShowSessionModal(true)}
+              >
+                ▶ Start Session
+              </button>
+            ) : (
+              <button
+                className="block w-full px-4 py-2 hover:bg-red-100 rounded-lg"
+                onClick={finishSession}
+              >
+                ⏹ Finish Session
+              </button>
+            )}
+
+            {/* Logout */}
             <button
               className="block w-full px-4 py-2 hover:bg-pink-100 rounded-lg"
               onClick={logout}
             >
               Logout
             </button>
+
+            {/* Room Code */}
             <div className="px-2 py-1">
               <p className="text-gray-600 text-sm font-semibold">Room Code</p>
               <div className="flex items-center justify-center space-x-2 mt-1">
@@ -199,9 +342,69 @@ export default function Timeline() {
         )}
       </div>
 
+      {/* Session Label Modal */}
+      {showSessionModal && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50 p-4">
+          <div className="bg-white rounded-xl w-full max-w-sm p-6 shadow-lg">
+            <h3 className="text-xl font-bold mb-4 text-pink-600 text-center">
+              Enter Session Name
+            </h3>
+            <input
+              type="text"
+              value={sessionLabel}
+              onChange={(e) => setSessionLabel(e.target.value)}
+              placeholder="e.g. Spain Trip"
+              className="w-full px-4 py-2 border border-pink-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-400 mb-4"
+            />
+            <div className="flex justify-between gap-2">
+              <button
+                onClick={() => setShowSessionModal(false)}
+                className="flex-1 px-3 py-2 bg-gray-300 rounded-lg hover:bg-gray-400"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  startSession();
+                  setShowSessionModal(false);
+                }}
+                className="flex-1 px-3 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600"
+              >
+                Start
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <h2 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-orange-400 drop-shadow-lg mb-8 sm:mb-10 animate-pulse text-center">
         {room.name || "BondBox"}
       </h2>
+      {/* <div className="mb-6 flex gap-2 items-center">
+        <input
+          type="text"
+          placeholder="Enter session label (e.g. Spain Trip)"
+          value={sessionLabel}
+          onChange={(e) => setSessionLabel(e.target.value)}
+          className="flex-1 px-3 py-2 border rounded-lg"
+          disabled={isSessionActive}
+        />
+        {!isSessionActive ? (
+          <button
+            onClick={startSession}
+            className="px-4 py-2 bg-green-500 text-white rounded-lg"
+          >
+            ▶ Start
+          </button>
+        ) : (
+          <button
+            onClick={finishSession}
+            className="px-4 py-2 bg-red-500 text-white rounded-lg"
+          >
+            ⏹ Finish
+          </button>
+        )}
+      </div> */}
 
       {/* Post input row */}
       <div className="mb-8 sm:mb-10 w-full max-w-2xl lg:max-w-2xl bg-white/60 p-3 rounded-xl shadow-md">
@@ -331,55 +534,25 @@ export default function Timeline() {
       )} */}
 
       {/* Timeline */}
-      <div className="relative mx-auto w-full max-w-md sm:max-w-2xl">
-        {/* vertical line */}
-        <div className="absolute left-1/2 h-full w-1 -translate-x-1/2 bg-gradient-to-b from-pink-400 via-orange-300 to-pink-500 shadow-[0_0_15px_rgba(255,192,203,0.7)] hidden sm:block"></div>
-
-        {posts.map((p, i) => (
-          <div
-            key={p._id}
-            className={`mb-8 flex w-full flex-col items-center sm:flex-row ${
-              i % 2 === 0 ? "sm:flex-row" : "sm:flex-row-reverse"
-            }`}
-          >
-            <div className="post flex flex-col w-full sm:w-1/2 px-2">
-              <div className="post-content bg-white/80 backdrop-blur-sm rounded-xl p-4 shadow-md w-full break-words ">
-                {p.text && (
-                  <p className="post-text text-gray-800 pb-4">{p.text}</p>
-                )}
-                {/* {p.photo && (
-                  <img
-                    src={p.photo}
-                    alt="Post"
-                    className="mt-2 rounded-xl max-w-full"
-                  />
-                )} */}
-                {p.photo && (
-                  <img
-                    src={p.photo}
-                    alt="Post"
-                    className="mt-2 rounded-xl max-w-full"
-                  />
-                )}
-                {p.audio && (
-                  <audio controls className="mt-2 w-full">
-                    <source src={p.audio} type="audio/mpeg" />
-                    Your browser does not support the audio element.
-                  </audio>
-                )}
-                {p.video && (
-                  <video controls className="mt-2 rounded-xl w-full max-h-96">
-                    <source src={p.video} type="video/mp4" />
-                    Your browser does not support the video tag.
-                  </video>
-                )}
-                <span className="post-date text-xs text-gray-500 mt-1 block">
-                  {new Date(p.createdAt).toLocaleString()}
-                </span>
-              </div>
+      <div className="timeline">
+        {timeline.map((item, idx) =>
+          item.type === "session" ? (
+            <div key={idx} className="mb-10">
+              <h3 className="text-2xl font-bold text-center text-pink-600 mb-4">
+                {item.label}
+              </h3>
+              {item.posts!.map((p, i) => (
+                <PostCard key={p._id} post={p} flip={i % 2 === 0} />
+              ))}
             </div>
-          </div>
-        ))}
+          ) : (
+            <PostCard
+              key={item.post!._id}
+              post={item.post!}
+              flip={idx % 2 === 0}
+            />
+          )
+        )}
       </div>
     </div>
   );

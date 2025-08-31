@@ -7,6 +7,7 @@ export type Room = {
 
 // Post type
 export type Post = {
+  sessionId: any;
   _id: string;
   text: string;
   createdAt: string;
