@@ -6,7 +6,7 @@ import type { Note, Post, Room } from "../types";
 import { Flip, toast } from "react-toastify";
 import PostCard from "../Components/PostCard";
 import LoveNoteModal from "../Components/LoveNote";
-// import { io } from "socket.io-client";
+import io from "socket.io-client"; // ✅ works for most setups
 
 export default function Timeline() {
   const { roomId } = useParams();
