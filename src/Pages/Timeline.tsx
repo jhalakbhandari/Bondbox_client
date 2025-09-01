@@ -7,6 +7,7 @@ import { Flip, toast } from "react-toastify";
 import PostCard from "../Components/PostCard";
 import LoveNoteModal from "../Components/LoveNote";
 import io from "socket.io-client"; // ✅ works for most setups
+import BucketListModal from "../Components/BucketListModal";
 
 export default function Timeline() {
   const { roomId } = useParams();
@@ -32,10 +33,8 @@ export default function Timeline() {
   // const sessionId = localStorage.getItem("session");
   const [unreadCount, setUnreadCount] = useState(0);
   const [loveNotes, setLoveNotes] = useState<Note[]>([]);
-  // const socketRef = useRef<Socket | null>(null);
+  const [showBucketListModal, setShowBucketListModal] = useState(false);
 
-  //Note
-  // Love Notes
   const [showLoveNotesModal, setShowLoveNotesModal] = useState(false);
 
   const fetchLoveNotes = async () => {
@@ -431,6 +430,13 @@ export default function Timeline() {
                   ⏹ Finish Session
                 </button>
               )}
+              {/* ✅ New Bucket List Button */}
+              <button
+                className="block w-full px-4 py-2 hover:bg-pink-100 rounded-lg"
+                onClick={() => setShowBucketListModal(true)}
+              >
+                Our Bucket List
+              </button>
               <button
                 className="block w-full px-4 py-2 hover:bg-pink-100 rounded-lg"
                 onClick={logout}
@@ -455,6 +461,12 @@ export default function Timeline() {
           )}
         </div>
       </div>
+      {showBucketListModal && (
+        <BucketListModal
+          roomId={roomId!}
+          onClose={() => setShowBucketListModal(false)}
+        />
+      )}
 
       {/* Session Label Modal */}
       {showSessionModal && (
