@@ -8,6 +8,7 @@ import PostCard from "../Components/PostCard";
 import LoveNoteModal from "../Components/LoveNote";
 import io from "socket.io-client"; // ✅ works for most setups
 import BucketListModal from "../Components/BucketListModal";
+import DownloadPDFButton from "../Components/DownloadPDFButton";
 
 export default function Timeline() {
   const { roomId } = useParams();
@@ -169,7 +170,8 @@ export default function Timeline() {
         headers: { Authorization: `Bearer ${token}` },
       }
     );
-    setPosts(postRes.data);
+    // console.log(postRes);
+    setPosts(postRes.data.posts);
   };
   async function startSession() {
     if (!sessionLabel.trim()) {
@@ -437,6 +439,9 @@ export default function Timeline() {
               >
                 Our Bucket List
               </button>
+
+              <DownloadPDFButton roomId={roomId!} />
+
               <button
                 className="block w-full px-4 py-2 hover:bg-pink-100 rounded-lg"
                 onClick={logout}
