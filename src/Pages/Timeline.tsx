@@ -9,6 +9,7 @@ import LoveNoteModal from "../Components/LoveNote";
 import io from "socket.io-client"; // ✅ works for most setups
 import BucketListModal from "../Components/BucketListModal";
 import DownloadPDFButton from "../Components/DownloadPDFButton";
+import InfiniteScroll from "react-infinite-scroll-component";
 
 export default function Timeline() {
   const { roomId } = useParams();
@@ -35,7 +36,8 @@ export default function Timeline() {
   const [unreadCount, setUnreadCount] = useState(0);
   const [loveNotes, setLoveNotes] = useState<Note[]>([]);
   const [showBucketListModal, setShowBucketListModal] = useState(false);
-
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
   const [showLoveNotesModal, setShowLoveNotesModal] = useState(false);
 
   const fetchLoveNotes = async () => {
@@ -57,14 +59,29 @@ export default function Timeline() {
       console.error(err);
     }
   };
+  // Fetch paginated posts
+  const fetchMorePosts = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) return;
 
+    const res = await axios.get(
+      `${import.meta.env.VITE_API_URL}/post/${roomId}?page=${page}&limit=10`,
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+
+    const newItems = res.data.posts; // adjust if your backend returns differently
+    // console.log("newItems", res.data);
+
+    setPosts((prev) => [...prev, ...newItems]);
+    setHasMore(res.data.hasMore);
+    setPage((prev) => prev + 1);
+  };
   // Fetch love notes on mount
   useEffect(() => {
     fetchLoveNotes();
   }, [roomId]);
 
   const navigate = useNavigate();
-  // const timeline = [];
 
   // Group posts by sessionId
   const sessionMap: Record<string, { label: string; posts: Post[] }> = {};
@@ -149,30 +166,52 @@ export default function Timeline() {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
-
   const fetchData = async () => {
     const token = localStorage.getItem("token");
     if (!token) return;
 
     const roomRes = await axios.get(
       `${import.meta.env.VITE_API_URL}/room/${roomId}`,
-      {
-        headers: { Authorization: `Bearer ${token}` },
-      }
+      { headers: { Authorization: `Bearer ${token}` } }
     );
     setRoom({
       ...roomRes.data,
       members: roomRes.data.users,
     });
+
     const postRes = await axios.get(
-      `${import.meta.env.VITE_API_URL}/post/${roomId}`,
-      {
-        headers: { Authorization: `Bearer ${token}` },
-      }
+      `${import.meta.env.VITE_API_URL}/post/${roomId}?page=1&limit=10`,
+      { headers: { Authorization: `Bearer ${token}` } }
     );
-    // console.log(postRes);
+
+    // ✅ Use postRes.data.posts
     setPosts(postRes.data.posts);
+    setHasMore(postRes.data.hasMore);
+    setPage(2); // next page to fetch
   };
+
+  // const fetchData = async () => {
+  //   const token = localStorage.getItem("token");
+  //   if (!token) return;
+
+  //   const roomRes = await axios.get(
+  //     `${import.meta.env.VITE_API_URL}/room/${roomId}`,
+  //     {
+  //       headers: { Authorization: `Bearer ${token}` },
+  //     }
+  //   );
+  //   setRoom({
+  //     ...roomRes.data,
+  //     members: roomRes.data.users,
+  //   });
+  //   const postRes = await axios.get(
+  //     `${import.meta.env.VITE_API_URL}/post/${roomId}`,
+  //     {
+  //       headers: { Authorization: `Bearer ${token}` },
+  //     }
+  //   );
+  //   setPosts(postRes.data);
+  // };
   async function startSession() {
     if (!sessionLabel.trim()) {
       toast.error("Please enter a label for your session!");
@@ -216,6 +255,7 @@ export default function Timeline() {
   // Call it on mount
   useEffect(() => {
     fetchData();
+    fetchMorePosts();
     fetchActiveSession();
   }, [roomId]);
 
@@ -331,11 +371,12 @@ export default function Timeline() {
         },
       }
     );
+    setPosts((prev) => [res.data, ...prev]); // add new post at the top
 
-    setPosts([...posts, res.data]);
+    // setPosts([...posts, res.data]);
     setText("");
     clearMedia();
-    fetchData();
+    // fetchData();
   };
 
   const startRecording = async () => {
@@ -621,21 +662,32 @@ export default function Timeline() {
       <div className="timeline relative w-full max-w-5xl flex flex-col items-center space-y-12">
         {/* Center vertical line */}
         <div className="absolute left-1/2 top-0 bottom-0 w-1 bg-pink-400/40 transform -translate-x-1/2 z-0"></div>
-
-        {timeline.map((item, idx) =>
-          item.type === "session" ? (
-            <div key={idx} className="w-full relative z-10">
-              {/* <h3 className="text-2xl font-bold text-center text-pink-600 mb-6 bg-orange-100 p-2 w-full max-w-md mx-auto">
+        <InfiniteScroll
+          dataLength={timeline.length}
+          next={fetchMorePosts}
+          hasMore={hasMore}
+          loader={
+            <p className="text-center py-4 text-gray-500">Loading more...</p>
+          }
+          endMessage={
+            <p className="text-center py-4 text-gray-400">🎉 No more posts</p>
+          }
+          className="w-full flex flex-col items-center space-y-12"
+        >
+          {timeline.map((item, idx) =>
+            item.type === "session" ? (
+              <div key={idx} className="w-full relative z-10">
+                {/* <h3 className="text-2xl font-bold text-center text-pink-600 mb-6 bg-orange-100 p-2 w-full max-w-md mx-auto">
                 {item.label}
               </h3> */}
-              <div className="relative flex items-center justify-center mb-6">
-                <div className="absolute left-1/2 transform -translate-x-1/2 -top-3 w-5 h-5 rounded-full bg-pink-500 border-4 border-white z-20 shadow" />
-                <h3 className="text-2xl font-bold text-center text-pink-600 bg-orange-100 px-4 py-2 rounded-xl shadow-md">
-                  {item.label}
-                </h3>
-              </div>
+                <div className="relative flex items-center justify-center mb-6">
+                  <div className="absolute left-1/2 transform -translate-x-1/2 -top-3 w-5 h-5 rounded-full bg-pink-500 border-4 border-white z-20 shadow" />
+                  <h3 className="text-2xl font-bold text-center text-pink-600 bg-orange-100 px-4 py-2 rounded-xl shadow-md">
+                    {item.label}
+                  </h3>
+                </div>
 
-              {/* <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {item.posts!.map((p, i) => (
                   <div
                     key={p._id}
@@ -647,46 +699,48 @@ export default function Timeline() {
                   </div>
                 ))}
               </div> */}
-              {/* <div className="grid grid-cols-1 md:grid-cols-2 gap-6"> */}
-              {item.posts!.map((p, i) => (
-                <div
-                  key={p._id}
-                  className={`w-full relative z-10 flex ${
-                    i % 2 === 0
-                      ? "justify-end md:pr-12"
-                      : "justify-start md:pl-12"
-                  }`}
-                >
-                  <div className="hidden sm:block absolute left-1/2 top-6 sm:top-0 transform -translate-x-1/2 w-4 h-4 rounded-full bg-pink-400 border-2 border-white z-20"></div>
+                {/* <div className="grid grid-cols-1 md:grid-cols-2 gap-6"> */}
+                {item.posts!.map((p, i) => (
+                  <div
+                    key={`${p._id}-${i}`}
+                    className={`w-full relative z-10 flex ${
+                      i % 2 === 0
+                        ? "justify-end md:pr-12"
+                        : "justify-start md:pl-12"
+                    }`}
+                  >
+                    <div className="hidden sm:block absolute left-1/2 top-6 sm:top-0 transform -translate-x-1/2 w-4 h-4 rounded-full bg-pink-400 border-2 border-white z-20"></div>
 
-                  <PostCard post={p} flip={i % 2 === 0} />
-                </div>
-              ))}
-            </div>
-          ) : (
-            // </div>
-            // <div
-            //   key={item.post!._id}
-            //   className={`w-full relative z-10 flex ${
-            //     idx % 2 === 0 ? "justify-start" : "justify-end"
-            //   }`}
-            // >
-            //   <PostCard post={item.post!} flip={idx % 2 === 0} />
-            // </div>
-            <div
-              key={item.post!._id}
-              className={`w-full relative z-10 flex ${
-                idx % 2 === 0
-                  ? "justify-end md:pr-12"
-                  : "justify-start md:pl-12"
-              }`}
-            >
-              <div className="hidden sm:block absolute left-1/2 top-6 sm:top-0 transform -translate-x-1/2 w-4 h-4 rounded-full bg-pink-400 border-2 border-white z-20"></div>
+                    <PostCard post={p} flip={i % 2 === 0} />
+                  </div>
+                ))}
+              </div>
+            ) : (
+              // </div>
+              // <div
+              //   key={item.post!._id}
+              //   className={`w-full relative z-10 flex ${
+              //     idx % 2 === 0 ? "justify-start" : "justify-end"
+              //   }`}
+              // >
+              //   <PostCard post={item.post!} flip={idx % 2 === 0} />
+              // </div>
+              <div
+                // key={item.post!._id}
+                key={`${item.post!._id}-${idx}`}
+                className={`w-full relative z-10 flex ${
+                  idx % 2 === 0
+                    ? "justify-end md:pr-12"
+                    : "justify-start md:pl-12"
+                }`}
+              >
+                <div className="hidden sm:block absolute left-1/2 top-6 sm:top-0 transform -translate-x-1/2 w-4 h-4 rounded-full bg-pink-400 border-2 border-white z-20"></div>
 
-              <PostCard post={item.post!} flip={idx % 2 === 0} />
-            </div>
-          )
-        )}
+                <PostCard post={item.post!} flip={idx % 2 === 0} />
+              </div>
+            )
+          )}
+        </InfiniteScroll>
       </div>
     </div>
   );
