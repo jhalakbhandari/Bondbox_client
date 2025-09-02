@@ -1,5 +1,3 @@
-import React from "react";
-
 export default function DownloadPDFButton({ roomId }: { roomId: string }) {
   const downloadPDF = async () => {
     try {
@@ -33,7 +31,7 @@ export default function DownloadPDFButton({ roomId }: { roomId: string }) {
       onClick={downloadPDF}
       className="block w-full px-4 py-2 hover:bg-pink-100 rounded-lg"
     >
-      📄 Export Memories (PDF)
+      Export Memories (PDF)
     </button>
   );
 }
