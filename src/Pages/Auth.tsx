@@ -3,6 +3,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Flip, toast } from "react-toastify";
+import Spinner from "../Components/Spinner";
 
 export default function Auth({
   onAuth,
@@ -12,9 +13,13 @@ export default function Auth({
   const [mode, setMode] = useState<"login" | "signup">("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+
   const navigate = useNavigate();
 
   const handleAuth = async () => {
+    setIsLoading(true);
+
     try {
       const res = await axios.post(
         `${import.meta.env.VITE_API_URL}/auth/${mode}`,
@@ -58,7 +63,9 @@ export default function Auth({
         setEmail("");
         setPassword("");
       }
+      setIsLoading(true);
     } catch (err: unknown) {
+      setIsLoading(false);
       if (axios.isAxiosError(err)) {
         // If backend sends a proper error response (like res.status(400).json({ message: "Invalid credentials" }))
         toast.error(err.response?.data?.message || "Something went wrong", {
@@ -98,6 +105,7 @@ export default function Auth({
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-pink-200 via-pink-100 to-orange-200 px-4">
+      {isLoading ?? <Spinner size={64} thickness={6} speed="slow" />}
       <div className="flex flex-col items-center text-center w-full max-w-md">
         {/* Title */}
         <motion.h1

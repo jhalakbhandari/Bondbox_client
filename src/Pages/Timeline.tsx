@@ -10,6 +10,7 @@ import io from "socket.io-client"; // ✅ works for most setups
 import BucketListModal from "../Components/BucketListModal";
 import DownloadPDFButton from "../Components/DownloadPDFButton";
 import InfiniteScroll from "react-infinite-scroll-component";
+import Spinner from "../Components/Spinner";
 
 export default function Timeline() {
   const { roomId } = useParams();
@@ -39,7 +40,7 @@ export default function Timeline() {
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [showLoveNotesModal, setShowLoveNotesModal] = useState(false);
-
+  const [isLoading, setIsLoading] = useState(false);
   const fetchLoveNotes = async () => {
     const token = localStorage.getItem("token");
     if (!token) return;
@@ -169,25 +170,29 @@ export default function Timeline() {
   const fetchData = async () => {
     const token = localStorage.getItem("token");
     if (!token) return;
+    setIsLoading(true);
+    try {
+      const roomRes = await axios.get(
+        `${import.meta.env.VITE_API_URL}/room/${roomId}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setRoom({
+        ...roomRes.data,
+        members: roomRes.data.users,
+      });
 
-    const roomRes = await axios.get(
-      `${import.meta.env.VITE_API_URL}/room/${roomId}`,
-      { headers: { Authorization: `Bearer ${token}` } }
-    );
-    setRoom({
-      ...roomRes.data,
-      members: roomRes.data.users,
-    });
+      const postRes = await axios.get(
+        `${import.meta.env.VITE_API_URL}/post/${roomId}?page=1&limit=10`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
 
-    const postRes = await axios.get(
-      `${import.meta.env.VITE_API_URL}/post/${roomId}?page=1&limit=10`,
-      { headers: { Authorization: `Bearer ${token}` } }
-    );
-
-    // ✅ Use postRes.data.posts
-    setPosts(postRes.data.posts);
-    setHasMore(postRes.data.hasMore);
-    setPage(2); // next page to fetch
+      // ✅ Use postRes.data.posts
+      setPosts(postRes.data.posts);
+      setHasMore(postRes.data.hasMore);
+      setPage(2); // next page to fetch
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   // const fetchData = async () => {
@@ -424,7 +429,18 @@ export default function Timeline() {
   };
 
   if (!room) return <p className="text-center text-pink-500">Loading...</p>;
-
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-pink-200 via-orange-100 to-pink-300">
+        <Spinner
+          size={64}
+          thickness={5}
+          speed="fast"
+          label="Loading timeline..."
+        />
+      </div>
+    );
+  }
   return (
     <div className="timeline-container min-h-screen bg-gradient-to-br from-pink-200 via-orange-100 to-pink-300 flex flex-col items-center py-8 px-4 md:py-12 md:px-0 w-full">
       {/* Header row: Love Notes, Title, Settings */}

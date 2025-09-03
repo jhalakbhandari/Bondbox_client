@@ -4,16 +4,20 @@ import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import type { Room } from "../types";
 import { Flip, toast } from "react-toastify";
+import Spinner from "../Components/Spinner";
 
 export default function Home() {
   const [mode, setMode] = useState(""); // "create" | "join"
   const [name, setName] = useState("");
   const [code, setCode] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+
   const [createdRoom, setCreatedRoom] = useState<Room | null>(null);
 
   const navigate = useNavigate();
 
   const createRoom = async () => {
+    setIsLoading(true);
     const token = localStorage.getItem("token");
     // console.log(token);
     if (!token) throw new Error("No token found");
@@ -35,6 +39,7 @@ export default function Home() {
       theme: "light",
       transition: Flip,
     });
+    setIsLoading(false);
     // navigate(`/timeline/${res.data._id}`); // use room ID for timeline
   };
 
@@ -43,6 +48,7 @@ export default function Home() {
     // console.log(token);
 
     if (!token) throw new Error("No token found");
+    setIsLoading(true);
 
     try {
       const res = await axios.post(
@@ -94,11 +100,13 @@ export default function Home() {
         });
       }
     }
+    setIsLoading(false);
   };
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-pink-200 via-pink-100 to-orange-200 text-center">
       {/* Title */}
+      {isLoading ?? <Spinner />}
       <motion.h1
         initial={{ scale: 0.8, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
