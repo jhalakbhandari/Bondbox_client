@@ -1,3 +1,5 @@
+import { toast } from "react-toastify";
+
 export default function DownloadPDFButton({ roomId }: { roomId: string }) {
   const downloadPDF = async () => {
     try {
@@ -11,8 +13,18 @@ export default function DownloadPDFButton({ roomId }: { roomId: string }) {
         }
       );
 
-      if (!res.ok) throw new Error("Failed to download PDF");
-
+      // if (!res.ok) throw new Error("Failed to download PDF");
+      if (!res.ok) {
+        // try to parse backend JSON { error: "..." }
+        let errorMsg = "Failed to download PDF";
+        try {
+          const data = await res.json();
+          if (data?.error) errorMsg = data.error;
+        } catch {
+          // ignore JSON parse error, keep default
+        }
+        throw new Error(errorMsg);
+      }
       const blob = await res.blob();
       const url = window.URL.createObjectURL(blob);
 
@@ -21,8 +33,14 @@ export default function DownloadPDFButton({ roomId }: { roomId: string }) {
       a.download = `memories-${roomId}.pdf`;
       a.click();
       window.URL.revokeObjectURL(url);
-    } catch (err) {
+    } catch (err: unknown) {
       console.error(err);
+
+      if (err instanceof Error) {
+        toast.error(err.message);
+      } else {
+        toast.error("Something went wrong");
+      }
     }
   };
 
