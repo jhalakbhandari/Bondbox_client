@@ -581,7 +581,7 @@ export default function Timeline() {
         <textarea
           value={text}
           onChange={(e) => setText(e.target.value)}
-          placeholder="✨ Write something magical..."
+          placeholder="✨ Write something ..."
           className="w-full rounded-lg px-4 py-2 border border-pink-300 focus:outline-none focus:ring-2 focus:ring-pink-400 bg-white/80 resize-none"
         />
         {media && mediaType === "audio" && (

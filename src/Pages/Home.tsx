@@ -17,6 +17,10 @@ export default function Home() {
   const navigate = useNavigate();
 
   const createRoom = async () => {
+    if (!isAlphanumeric(name)) {
+      toast.error("Room name can only contain letters and numbers");
+      return;
+    }
     setIsLoading(true);
     const token = localStorage.getItem("token");
     // console.log(token);
@@ -44,6 +48,10 @@ export default function Home() {
   };
 
   const joinRoom = async () => {
+    if (!isAlphanumeric(name)) {
+      toast.error("Room name can only contain letters and numbers");
+      return;
+    }
     const token = localStorage.getItem("token");
     // console.log(token);
 
@@ -102,6 +110,7 @@ export default function Home() {
     }
     setIsLoading(false);
   };
+  const isAlphanumeric = (value: string) => /^[a-zA-Z0-9]+$/.test(value);
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-pink-200 via-pink-100 to-orange-200 text-center">
@@ -149,7 +158,13 @@ export default function Home() {
           <div className="flex flex-col gap-4">
             <input
               value={name}
-              onChange={(e) => setName(e.target.value)}
+              // onChange={(e) => setName(e.target.value)}
+              onChange={(e) => {
+                const value = e.target.value;
+                if (value === "" || /^[a-zA-Z0-9]*$/.test(value)) {
+                  setName(value); // only update if valid
+                }
+              }}
               placeholder="Enter room name"
               className="p-3 rounded-xl border-2 border-pink-300 focus:outline-none focus:ring-2 focus:ring-pink-400 shadow-md"
             />
@@ -166,7 +181,13 @@ export default function Home() {
           <div className="flex flex-col gap-4">
             <input
               value={code}
-              onChange={(e) => setCode(e.target.value)}
+              // onChange={(e) => setCode(e.target.value)}
+              onChange={(e) => {
+                const value = e.target.value;
+                if (value === "" || /^[a-zA-Z0-9]*$/.test(value)) {
+                  setCode(value); // only update if valid
+                }
+              }}
               placeholder="Enter room code"
               className="p-3 rounded-xl border-2 border-orange-300 focus:outline-none focus:ring-2 focus:ring-orange-400 shadow-md"
             />

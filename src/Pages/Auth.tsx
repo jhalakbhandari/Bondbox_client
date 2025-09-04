@@ -19,7 +19,18 @@ export default function Auth({
 
   const handleAuth = async () => {
     setIsLoading(true);
-
+    if (mode === "signup") {
+      const error = validatePassword(password);
+      if (error) {
+        toast.error(error, {
+          position: "top-center",
+          autoClose: 4000,
+          theme: "light",
+          transition: Flip,
+        });
+        return; // stop signup
+      }
+    }
     try {
       const res = await axios.post(
         `${import.meta.env.VITE_API_URL}/auth/${mode}`,
@@ -103,6 +114,14 @@ export default function Auth({
   //   }
   // }, [navigate]);
 
+  const validatePassword = (password: string) => {
+    return /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[^A-Za-z0-9]).{6,}$/.test(
+      password
+    )
+      ? null
+      : "Password must be at least 6 characters long, and include uppercase, lowercase, number, and special character.";
+  };
+
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-pink-200 via-pink-100 to-orange-200 px-4">
       {isLoading ?? <Spinner size={64} thickness={6} speed="slow" />}
@@ -145,6 +164,7 @@ export default function Auth({
         </div>
 
         {/* Form */}
+
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
