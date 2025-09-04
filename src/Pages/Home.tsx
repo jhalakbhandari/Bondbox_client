@@ -48,7 +48,7 @@ export default function Home() {
   };
 
   const joinRoom = async () => {
-    if (!isAlphanumeric(name)) {
+    if (!isAlphanumeric(code)) {
       toast.error("Room name can only contain letters and numbers");
       return;
     }
