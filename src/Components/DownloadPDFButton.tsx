@@ -1,9 +1,13 @@
 import { toast } from "react-toastify";
+import Spinner from "./Spinner";
+import { useState } from "react";
 
 export default function DownloadPDFButton({ roomId }: { roomId: string }) {
+  const [isLoading, setIsLoading] = useState(false);
   const downloadPDF = async () => {
     try {
       const token = localStorage.getItem("token");
+      setIsLoading(true);
       const res = await fetch(
         `${import.meta.env.VITE_API_URL}/exports/pdf/${roomId}`,
         {
@@ -42,14 +46,18 @@ export default function DownloadPDFButton({ roomId }: { roomId: string }) {
         toast.error("Something went wrong");
       }
     }
+    setIsLoading(false);
   };
 
   return (
-    <button
-      onClick={downloadPDF}
-      className="block w-full px-4 py-2 hover:bg-pink-100 rounded-lg"
-    >
-      Export Memories (PDF)
-    </button>
+    <div>
+      {isLoading && <Spinner />}
+      {!isLoading &&<button
+        onClick={downloadPDF}
+        className="block w-full px-4 py-2 hover:bg-pink-100 rounded-lg"
+      >
+        Export Memories (PDF)
+      </button>}
+    </div>
   );
 }
