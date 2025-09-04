@@ -10,7 +10,7 @@
         },
         {
           "key": "Content-Security-Policy",
-          "value": "default-src 'self'; img-src 'self' data: https:; script-src 'self' https:; style-src 'self' 'unsafe-inline' https:; font-src 'self' https: data:; connect-src 'self' https://bondbox-server.onrender.com https://*.bondbox-server.onrender.com https://api.cloudinary.com; media-src 'self' https://res.cloudinary.com blob:;"
+          "value": "default-src 'self'; img-src 'self' data: https:; script-src 'self' https:; style-src 'self' 'unsafe-inline' https:; font-src 'self' https: data:; connect-src 'self' https://bondbox-server.onrender.com https://*.bondbox-server.onrender.com https://api.cloudinary.com wss://bondbox-server.onrender.com;"
         },
         {
           "key": "X-Frame-Options",
