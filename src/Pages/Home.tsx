@@ -40,7 +40,7 @@ export default function Home() {
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setCreatedRoom(res.data);
-      toast("🎉 Room Created! Share your code with your loved one!", {
+      toast("🎉 Sanctuary Created! Share your secret key with your loved one!", {
         position: "top-center",
         autoClose: 3500,
         theme: "light",
@@ -122,7 +122,7 @@ export default function Home() {
   };
 
   return (
-    <div className="relative min-h-screen flex flex-col items-center justify-center p-4 sm:p-6 overflow-hidden bg-gradient-to-br from-pink-100 via-rose-50 to-orange-100">
+    <div className="relative min-h-screen flex flex-col items-center justify-center p-3.5 sm:p-6 overflow-hidden bg-gradient-to-br from-pink-100 via-rose-50 to-orange-100">
       {/* Ambient background orbs */}
       <div className="ambient-glow-1" />
       <div className="ambient-glow-2" />
@@ -131,14 +131,14 @@ export default function Home() {
       <motion.div
         animate={{ y: [0, -10, 0], rotate: [0, 4, 0] }}
         transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
-        className="hidden md:flex absolute top-16 left-20 text-4xl select-none opacity-50"
+        className="hidden md:flex absolute top-16 left-20 text-4xl select-none opacity-50 pointer-events-none"
       >
         🌸
       </motion.div>
       <motion.div
         animate={{ y: [0, 12, 0], rotate: [0, -5, 0] }}
         transition={{ duration: 6, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-        className="hidden md:flex absolute bottom-20 right-20 text-4xl select-none opacity-50"
+        className="hidden md:flex absolute bottom-20 right-20 text-4xl select-none opacity-50 pointer-events-none"
       >
         💌
       </motion.div>
@@ -149,7 +149,7 @@ export default function Home() {
           initial={{ opacity: 0, y: -16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full glass-pill text-xs font-semibold text-pink-600 mb-4 tracking-wide shadow-sm"
+          className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full glass-pill text-xs font-semibold text-pink-600 mb-3 sm:mb-4 tracking-wide shadow-xs"
         >
           <span>✨</span>
           <span>Shared Memory Sanctuary</span>
@@ -160,34 +160,34 @@ export default function Home() {
           initial={{ scale: 0.9, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ duration: 0.7 }}
-          className="text-5xl sm:text-6xl md:text-7xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-pink-500 via-rose-400 to-orange-400 drop-shadow-sm tracking-tight mb-3"
+          className="text-4xl sm:text-6xl md:text-7xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-pink-500 via-rose-400 to-orange-400 drop-shadow-sm tracking-tight mb-2 sm:mb-3"
           style={{ fontFamily: "var(--font-serif)" }}
         >
-          BondBox
+          Bondbox
         </motion.h1>
 
         <motion.p
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.2 }}
-          className="text-gray-600 text-sm sm:text-base max-w-md mb-8 sm:mb-10 font-normal leading-relaxed"
+          className="text-gray-600 text-xs sm:text-base max-w-md mb-6 sm:mb-10 font-normal leading-relaxed px-2"
         >
-          Capture milestones, secret love notes, audio whispers, and photos in your private shared space.
+          Preserve milestones, secret wax-sealed love notes, voice whispers, and polaroid photos in your private shared space.
         </motion.p>
 
-        {/* Room action cards */}
+        {/* Room Action Cards */}
         {!createdRoom && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.3 }}
-            className="flex flex-col sm:flex-row gap-4 sm:gap-6 w-full max-w-md justify-center"
+            className="flex flex-col sm:flex-row gap-3 sm:gap-6 w-full max-w-md justify-center px-1"
           >
             <motion.button
               whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.97 }}
               onClick={() => setMode(mode === "create" ? "" : "create")}
-              className={`flex-1 py-4 px-6 rounded-3xl font-bold text-sm sm:text-base transition-all duration-300 flex items-center justify-center gap-2.5 shadow-lg ${
+              className={`flex-1 py-3.5 sm:py-4 px-5 sm:px-6 rounded-3xl font-bold text-sm sm:text-base transition-all duration-300 flex items-center justify-center gap-2.5 shadow-lg cursor-pointer ${
                 mode === "create"
                   ? "bg-gradient-to-r from-pink-500 to-rose-400 text-white shadow-pink-400/40 ring-4 ring-pink-300/40"
                   : "glass-card text-gray-800 hover:text-pink-600 hover:border-pink-300"
@@ -201,7 +201,7 @@ export default function Home() {
               whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.97 }}
               onClick={() => setMode(mode === "join" ? "" : "join")}
-              className={`flex-1 py-4 px-6 rounded-3xl font-bold text-sm sm:text-base transition-all duration-300 flex items-center justify-center gap-2.5 shadow-lg ${
+              className={`flex-1 py-3.5 sm:py-4 px-5 sm:px-6 rounded-3xl font-bold text-sm sm:text-base transition-all duration-300 flex items-center justify-center gap-2.5 shadow-lg cursor-pointer ${
                 mode === "join"
                   ? "bg-gradient-to-r from-orange-400 to-rose-400 text-white shadow-orange-400/40 ring-4 ring-orange-300/40"
                   : "glass-card text-gray-800 hover:text-orange-600 hover:border-orange-300"
@@ -222,11 +222,11 @@ export default function Home() {
               animate={{ opacity: 1, y: 0, height: "auto" }}
               exit={{ opacity: 0, y: -10, height: 0 }}
               transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-              className="mt-6 w-full max-w-md"
+              className="mt-5 w-full max-w-md px-1"
             >
-              <div className="glass-card rounded-3xl p-6 sm:p-8 shadow-xl border border-white/80">
+              <div className="glass-card rounded-3xl p-5 sm:p-8 shadow-xl border border-white/85">
                 {mode === "create" ? (
-                  <div className="flex flex-col gap-4">
+                  <div className="flex flex-col gap-3.5 sm:gap-4">
                     <div className="text-left">
                       <label className="block text-xs font-semibold text-gray-600 mb-1.5 ml-1">
                         Name Your Space
@@ -241,6 +241,7 @@ export default function Home() {
                         }}
                         placeholder="e.g. Mia & Leo's Little World"
                         className="w-full px-4 py-3 rounded-2xl glass-input text-gray-800 placeholder-gray-400 text-sm font-medium focus:outline-none"
+                        autoFocus
                       />
                     </div>
                     <motion.button
@@ -261,7 +262,7 @@ export default function Home() {
                     </motion.button>
                   </div>
                 ) : (
-                  <div className="flex flex-col gap-4">
+                  <div className="flex flex-col gap-3.5 sm:gap-4">
                     <div className="text-left">
                       <label className="block text-xs font-semibold text-gray-600 mb-1.5 ml-1">
                         Enter Secret Room Code
@@ -276,6 +277,7 @@ export default function Home() {
                         }}
                         placeholder="e.g. ab3k9x"
                         className="w-full px-4 py-3 rounded-2xl glass-input text-gray-800 placeholder-gray-400 text-sm font-medium font-mono tracking-wider focus:outline-none"
+                        autoFocus
                       />
                     </div>
                     <motion.button
@@ -307,7 +309,7 @@ export default function Home() {
             initial={{ opacity: 0, scale: 0.92 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.5, ease: [0.34, 1.56, 0.64, 1] }}
-            className="mt-6 w-full max-w-md glass-card rounded-3xl p-6 sm:p-8 shadow-2xl border border-white/90"
+            className="mt-5 w-full max-w-md glass-card rounded-3xl p-5 sm:p-8 shadow-2xl border border-white/90"
           >
             <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-pink-400 to-orange-300 text-white flex items-center justify-center text-2xl mx-auto mb-3 shadow-md">
               🎉
@@ -316,31 +318,31 @@ export default function Home() {
               className="text-2xl font-bold text-gray-800"
               style={{ fontFamily: "var(--font-serif)" }}
             >
-              Room Created!
+              Sanctuary Created!
             </h3>
             <p className="text-gray-500 text-xs mt-1">
               Share this secret key with your partner to connect:
             </p>
 
-            {/* Glowing Code Card */}
-            <div className="mt-4 p-4 rounded-2xl bg-gradient-to-r from-pink-50 to-orange-50 border border-pink-200 flex items-center justify-between shadow-inner">
-              <span className="text-2xl font-mono font-bold tracking-widest text-pink-600">
+            {/* Code Card */}
+            <div className="mt-4 p-3.5 sm:p-4 rounded-2xl bg-gradient-to-r from-pink-50 to-orange-50 border border-pink-200 flex items-center justify-between shadow-inner">
+              <span className="text-xl sm:text-2xl font-mono font-bold tracking-widest text-pink-600">
                 {createdRoom.code}
               </span>
               <button
                 onClick={() => handleCopyCode(createdRoom.code)}
-                className="px-3 py-1.5 rounded-xl text-xs font-semibold bg-white border border-pink-200 text-pink-700 shadow-sm hover:bg-pink-100 transition-colors flex items-center gap-1 cursor-pointer"
+                className="px-3 py-1.5 rounded-xl text-xs font-semibold bg-white border border-pink-200 text-pink-700 shadow-xs hover:bg-pink-100 transition-colors flex items-center gap-1 cursor-pointer"
               >
                 {copied ? "✓ Copied!" : "📋 Copy"}
               </button>
             </div>
 
-            <div className="flex flex-col gap-2.5 mt-6">
+            <div className="flex flex-col gap-2.5 mt-5 sm:mt-6">
               <motion.button
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={() => setShowTicketModal(true)}
-                className="w-full py-3 px-6 rounded-2xl bg-gradient-to-r from-amber-500 via-rose-400 to-pink-500 text-white font-bold text-sm shadow-md shadow-amber-500/20 hover:shadow-amber-500/35 transition-all flex items-center justify-center gap-2 cursor-pointer"
+                className="w-full py-3 px-5 rounded-2xl bg-gradient-to-r from-amber-500 via-rose-400 to-pink-500 text-white font-bold text-xs sm:text-sm shadow-md shadow-amber-500/20 hover:shadow-amber-500/35 transition-all flex items-center justify-center gap-2 cursor-pointer"
               >
                 <span>🎟️</span>
                 <span>View & Share VIP Boarding Pass</span>
@@ -353,9 +355,9 @@ export default function Home() {
                   localStorage.setItem("roomId", createdRoom._id);
                   navigate(`/timeline/${createdRoom._id}`);
                 }}
-                className="w-full py-3 px-6 rounded-2xl bg-white border border-pink-200 text-pink-600 font-bold text-sm shadow-sm hover:bg-pink-50 transition-all flex items-center justify-center gap-2 cursor-pointer"
+                className="w-full py-3 px-5 rounded-2xl bg-white border border-pink-200 text-pink-600 font-bold text-xs sm:text-sm shadow-xs hover:bg-pink-50 transition-all flex items-center justify-center gap-2 cursor-pointer"
               >
-                <span>Enter Our Timeline</span>
+                <span>Enter Our Sanctuary</span>
                 <span>🌸</span>
               </motion.button>
             </div>

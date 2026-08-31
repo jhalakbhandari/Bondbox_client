@@ -187,7 +187,7 @@ export default function Timeline() {
       socket.on("newLoveNote", (note: Note) => {
         setLoveNotes((prev) => [...prev, note]);
         setUnreadCount((c) => c + 1);
-        toast("💌 You received a new love note!", {
+        toast("💌 You received a new secret love note!", {
           position: "top-center",
           autoClose: 3500,
           theme: "light",
@@ -273,7 +273,7 @@ export default function Timeline() {
 
   async function startSession() {
     if (!sessionLabel.trim()) {
-      toast.error("Please enter a label for your session!");
+      toast.error("Please enter a label for your chapter!");
       return;
     }
 
@@ -331,7 +331,7 @@ export default function Timeline() {
           mediaType === "audio")
       )
     ) {
-      toast("You haven't created a memory yet!", {
+      toast("Capture a photo, note, or voice whisper first! ✨", {
         position: "top-center",
         autoClose: 3500,
         theme: "light",
@@ -368,7 +368,7 @@ export default function Timeline() {
       setPosts((prev) => [res.data, ...prev]);
       setText("");
       clearMedia();
-      toast.success("Memory captured forever! ✨");
+      toast.success("Memory captured in sanctuary forever! 🌸✨");
     } catch (err) {
       toast.error("Failed to post memory");
     } finally {
@@ -400,7 +400,7 @@ export default function Timeline() {
         setRecordingSeconds((prev) => prev + 1);
       }, 1000);
     } catch (err) {
-      toast.error("Microphone access denied");
+      toast.error("Microphone access denied or unsupported");
     }
   };
 
@@ -426,7 +426,7 @@ export default function Timeline() {
   const handleCopyCode = (roomCode: string) => {
     navigator.clipboard.writeText(roomCode);
     setCopied(true);
-    toast.success("Room code copied!");
+    toast.success("Secret room code copied! 🔑");
     setTimeout(() => setCopied(false), 3000);
   };
 
@@ -451,13 +451,13 @@ export default function Timeline() {
   if (!room) return null;
 
   return (
-    <div className="relative min-h-screen bg-gradient-to-br from-pink-100 via-rose-50 to-orange-100 flex flex-col items-center py-6 px-3 sm:px-6 md:py-10">
+    <div className="relative min-h-screen bg-gradient-to-br from-pink-100 via-rose-50 to-orange-100 flex flex-col items-center py-4 px-2.5 sm:px-6 md:py-8">
       {/* Ambient background glows */}
       <div className="ambient-glow-1" />
       <div className="ambient-glow-2" />
 
-      {/* Top Floating Glass Navigation Bar */}
-      <header className="relative z-40 w-full max-w-4xl glass-card rounded-3xl px-4 py-3 sm:px-6 sm:py-4 mb-6 shadow-xl border border-white/80 flex items-center justify-between">
+      {/* Top Floating Navigation Bar */}
+      <header className="relative z-40 w-full max-w-4xl glass-card rounded-3xl px-3.5 py-2.5 sm:px-6 sm:py-3.5 mb-5 shadow-xl border border-white/85 flex items-center justify-between">
         {/* Left: Love Note Trigger */}
         <motion.button
           whileHover={{ scale: 1.05 }}
@@ -466,43 +466,44 @@ export default function Timeline() {
             setShowLoveNotesModal(true);
             setUnreadCount(0);
           }}
-          className="relative px-3.5 py-2 rounded-2xl bg-gradient-to-r from-pink-500 to-rose-400 text-white font-bold text-xs sm:text-sm shadow-md shadow-pink-500/20 hover:shadow-pink-500/35 transition-all flex items-center gap-1.5 cursor-pointer"
+          className="relative px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-2xl bg-gradient-to-r from-pink-500 to-rose-400 text-white font-bold text-xs sm:text-sm shadow-md shadow-pink-500/20 hover:shadow-pink-500/35 transition-all flex items-center gap-1.5 cursor-pointer select-none"
         >
-          <span>💌</span>
+          <span className="text-sm">💌</span>
           <span className="hidden sm:inline">Love Notes</span>
           {unreadCount > 0 && (
-            <span className="absolute -top-1.5 -right-1.5 bg-gradient-to-r from-red-500 to-pink-600 text-white text-[11px] font-bold rounded-full w-5 h-5 flex items-center justify-center ring-2 ring-white animate-bounce shadow-md">
+            <span className="absolute -top-1.5 -right-1.5 bg-gradient-to-r from-red-500 to-pink-600 text-white text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center ring-2 ring-white animate-bounce shadow-md">
               {unreadCount}
             </span>
           )}
         </motion.button>
 
         {/* Center: Sanctuary Room Name & Days Milestone Badge */}
-        <div className="text-center flex-1 px-2 flex flex-col items-center">
+        <div className="text-center flex-1 px-1 sm:px-2 flex flex-col items-center">
           <h2
-            className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-pink-500 via-rose-400 to-orange-400 tracking-tight"
+            className="text-xl sm:text-3xl md:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-pink-500 via-rose-400 to-orange-400 tracking-tight truncate max-w-[180px] sm:max-w-md"
             style={{ fontFamily: "var(--font-serif)" }}
           >
             {room.name || "BondBox"}
           </h2>
           <button
             onClick={() => setShowBondWrappedModal(true)}
-            className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-gradient-to-r from-pink-100 to-orange-100 border border-pink-200 text-[11px] font-bold text-pink-700 tracking-wide mt-1 hover:scale-105 transition shadow-xs cursor-pointer"
-            title="View Our Bond Wrapped Story"
+            className="inline-flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-0.5 rounded-full bg-gradient-to-r from-pink-100 to-orange-100 border border-pink-200 text-[10px] sm:text-[11px] font-bold text-pink-700 tracking-wide mt-0.5 hover:scale-105 transition shadow-2xs cursor-pointer select-none"
+            title="View Our Bond Story Wrapped"
           >
-            <span>🌸 Day {Math.max(1, Math.ceil(Math.abs(new Date().getTime() - new Date(room.createdAt || Date.now()).getTime()) / (1000 * 60 * 60 * 24)))} of Us</span>
+            <span>🌸 Day {Math.max(1, Math.ceil(Math.abs(new Date().getTime() - new Date(room.createdAt || Date.now()).getTime()) / (1000 * 60 * 60 * 24)))}</span>
             <span>•</span>
             <span>📊 Our Story</span>
           </button>
         </div>
 
         {/* Right: Quick Action Controls */}
-        <div className="flex items-center gap-2" ref={dropdownRef}>
+        <div className="flex items-center gap-1.5 sm:gap-2" ref={dropdownRef}>
+          {/* Quick Buttons on Tablet & Desktop */}
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={() => setShowGoldenTicketModal(true)}
-            className="hidden sm:flex px-3 py-2 rounded-2xl glass-pill text-xs font-bold text-amber-800 hover:text-amber-900 hover:border-amber-300 transition-colors items-center gap-1.5 cursor-pointer bg-amber-50/70"
+            className="hidden md:flex px-3 py-2 rounded-2xl glass-pill text-xs font-bold text-amber-800 hover:text-amber-900 hover:border-amber-300 transition-colors items-center gap-1.5 cursor-pointer bg-amber-50/70"
             title="Invite with Boarding Pass"
           >
             <span>🎟️</span>
@@ -514,6 +515,7 @@ export default function Timeline() {
             whileTap={{ scale: 0.95 }}
             onClick={() => setShowBucketListModal(true)}
             className="hidden sm:flex px-3 py-2 rounded-2xl glass-pill text-xs font-bold text-gray-700 hover:text-pink-600 transition-colors items-center gap-1 cursor-pointer"
+            title="Our Bucket List"
           >
             <span>✨</span>
             <span>Bucket List</span>
@@ -530,13 +532,13 @@ export default function Timeline() {
             <span>Buy Coffee</span>
           </motion.button>
 
-          {/* Settings / Menu Dropdown */}
+          {/* Settings / Menu Dropdown Drawer */}
           <div className="relative">
             <motion.button
               whileHover={{ scale: 1.08 }}
               whileTap={{ scale: 0.92 }}
               onClick={() => setShowDropdown(!showDropdown)}
-              className="w-10 h-10 rounded-2xl glass-pill flex items-center justify-center text-lg hover:border-pink-300 transition-all cursor-pointer shadow-sm"
+              className="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl glass-pill flex items-center justify-center text-base sm:text-lg hover:border-pink-300 transition-all cursor-pointer shadow-xs"
               title="Menu & Settings"
             >
               ⚙️
@@ -549,10 +551,10 @@ export default function Timeline() {
                   animate={{ opacity: 1, scale: 1, y: 0 }}
                   exit={{ opacity: 0, scale: 0.95, y: -6 }}
                   transition={{ duration: 0.2 }}
-                  className="absolute right-0 top-full mt-2 w-56 glass-card rounded-2xl p-2.5 shadow-2xl border border-white/90 z-50 flex flex-col gap-1 text-xs font-semibold"
+                  className="absolute right-0 top-full mt-2 w-64 glass-card rounded-3xl p-3 shadow-2xl border border-white/90 z-50 flex flex-col gap-1 text-xs font-semibold"
                 >
                   {/* Timeline View Layout Mode Switch */}
-                  <div className="p-2.5 rounded-xl bg-pink-50/80 mb-1 border border-pink-100/90">
+                  <div className="p-2.5 rounded-2xl bg-pink-50/80 mb-1 border border-pink-100/90">
                     <div className="flex items-center justify-between mb-1.5 px-0.5">
                       <span className="text-[10px] text-gray-500 uppercase tracking-wider font-extrabold">
                         Timeline Layout
@@ -566,6 +568,7 @@ export default function Timeline() {
                         onClick={() => {
                           setViewMode("stream");
                           localStorage.setItem("timeline_view", "stream");
+                          setShowDropdown(false);
                         }}
                         className={`flex-1 py-1.5 px-2 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
                           viewMode === "stream"
@@ -580,6 +583,7 @@ export default function Timeline() {
                         onClick={() => {
                           setViewMode("scrapbook");
                           localStorage.setItem("timeline_view", "scrapbook");
+                          setShowDropdown(false);
                         }}
                         className={`flex-1 py-1.5 px-2 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
                           viewMode === "scrapbook"
@@ -610,7 +614,7 @@ export default function Timeline() {
                       setShowDropdown(false);
                     }}
                   >
-                    <span>🎟️</span> Golden Ticket Invite
+                    <span>🎟️</span> Golden Ticket Invite Pass
                   </button>
 
                   <button
@@ -661,7 +665,7 @@ export default function Timeline() {
                         setShowDropdown(false);
                       }}
                     >
-                      <span>⏹</span> Finish Chapter
+                      <span>⏹</span> Conclude Chapter
                     </button>
                   )}
 
@@ -677,7 +681,7 @@ export default function Timeline() {
                       onClick={() => handleCopyCode(room.code)}
                       className="px-2 py-1 rounded-lg text-[10px] font-bold bg-white border border-pink-200 text-pink-700 shadow-xs hover:bg-pink-100 transition-colors cursor-pointer"
                     >
-                      {copied ? "✓" : "Copy"}
+                      {copied ? "✓ Copied" : "Copy"}
                     </button>
                   </div>
 
@@ -699,7 +703,7 @@ export default function Timeline() {
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="relative z-30 w-full max-w-2xl mb-6 px-4 py-2.5 rounded-2xl bg-gradient-to-r from-pink-500/90 via-rose-400/90 to-orange-400/90 text-white shadow-lg backdrop-blur-md flex items-center justify-between text-xs sm:text-sm font-semibold"
+          className="relative z-30 w-full max-w-2xl mb-5 px-4 py-2.5 rounded-2xl bg-gradient-to-r from-pink-500/90 via-rose-400/90 to-orange-400/90 text-white shadow-lg backdrop-blur-md flex items-center justify-between text-xs sm:text-sm font-semibold"
         >
           <div className="flex items-center gap-2">
             <span className="w-2.5 h-2.5 rounded-full bg-white animate-ping" />
@@ -719,50 +723,51 @@ export default function Timeline() {
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="relative z-30 w-full max-w-2xl glass-card rounded-3xl p-4 sm:p-6 shadow-xl border border-white/80 mb-10"
+        className="relative z-30 w-full max-w-2xl glass-card rounded-3xl p-4 sm:p-6 shadow-xl border border-white/85 mb-8"
       >
         <div className="flex items-center justify-between mb-3 px-1">
-          <span className="text-xs font-bold text-gray-700 tracking-wide flex items-center gap-1.5">
+          <span className="text-xs sm:text-sm font-bold text-gray-700 tracking-wide flex items-center gap-1.5">
             <span>📸</span>
             <span>Capture a New Memory</span>
           </span>
           {isSessionActive && (
-            <span className="text-[11px] px-2.5 py-0.5 rounded-full bg-pink-100 text-pink-700 font-semibold border border-pink-200">
-              🏷️ Tagged: {sessionLabel}
+            <span className="text-[10px] sm:text-[11px] px-2.5 py-0.5 rounded-full bg-pink-100 text-pink-700 font-semibold border border-pink-200 truncate max-w-[150px]">
+              🏷️ {sessionLabel}
             </span>
           )}
         </div>
 
         {/* Whimsical Inspiration Chips */}
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-2 mb-1 no-scrollbar text-[11px]">
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-2 mb-1.5 no-scrollbar text-[11px]">
           <span className="text-gray-400 font-medium whitespace-nowrap">✨ Ideas:</span>
           {[
             "Today with you 🌸",
             "A moment I loved 💕",
             "Remember this? ✨",
             "Our sweet adventure 🏕️",
+            "Can't stop smiling 💖",
           ].map((prompt) => (
             <button
               key={prompt}
               type="button"
               onClick={() => setText((prev) => (prev ? `${prev} ${prompt}` : prompt))}
-              className="px-2.5 py-0.5 rounded-full bg-pink-100/70 hover:bg-pink-200 text-pink-700 font-semibold whitespace-nowrap transition-colors cursor-pointer border border-pink-200/60"
+              className="px-2.5 py-0.5 rounded-full bg-pink-100/70 hover:bg-pink-200 text-pink-700 font-semibold whitespace-nowrap transition-colors cursor-pointer border border-pink-200/60 shadow-2xs active:scale-95"
             >
               {prompt}
             </button>
           ))}
         </div>
 
-        {/* Text input */}
+        {/* Text Input */}
         <textarea
           value={text}
           onChange={(e) => setText(e.target.value)}
-          placeholder="✨ Write a sweet note, polaroid caption, or funny thought..."
+          placeholder="✨ Write a sweet polaroid caption, funny memory, or whisper..."
           rows={3}
           className="w-full px-4 py-3 rounded-2xl glass-input text-gray-800 placeholder-gray-400 text-sm font-medium focus:outline-none resize-none"
         />
 
-        {/* Previews */}
+        {/* Media Live Previews */}
         {media && mediaType === "photo" && (
           <div className="relative mt-3 inline-block">
             <img
@@ -773,7 +778,7 @@ export default function Timeline() {
             <button
               onClick={clearMedia}
               className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs shadow-md hover:bg-red-600 cursor-pointer"
-              title="Remove"
+              title="Remove Photo"
             >
               ✕
             </button>
@@ -790,7 +795,7 @@ export default function Timeline() {
             <button
               onClick={clearMedia}
               className="absolute top-2 right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs shadow-md hover:bg-red-600 cursor-pointer"
-              title="Remove"
+              title="Remove Video"
             >
               ✕
             </button>
@@ -803,7 +808,7 @@ export default function Timeline() {
               <span>🎙️</span>
               <span>Voice Note Attached</span>
             </div>
-            <audio controls src={URL.createObjectURL(media)} className="h-8 max-w-[200px]" />
+            <audio controls src={URL.createObjectURL(media)} className="h-8 max-w-[180px] sm:max-w-[220px]" />
             <button
               onClick={clearMedia}
               className="text-red-500 hover:text-red-700 text-xs font-bold px-2 py-1 cursor-pointer"
@@ -829,7 +834,7 @@ export default function Timeline() {
           </div>
         )}
 
-        {/* Action toolbar */}
+        {/* Action Toolbar */}
         <div className="flex items-center justify-between gap-2 mt-4 pt-3 border-t border-pink-100/60">
           <div className="flex items-center gap-2">
             {!isRecording && !media && (
@@ -850,19 +855,19 @@ export default function Timeline() {
                 />
                 <label
                   htmlFor="mediaUpload"
-                  className="px-3.5 py-2 rounded-2xl glass-pill text-xs font-semibold text-pink-700 hover:text-pink-800 hover:border-pink-300 transition-colors flex items-center gap-1.5 cursor-pointer"
+                  className="px-3.5 py-2 rounded-2xl glass-pill text-xs font-semibold text-pink-700 hover:text-pink-800 hover:border-pink-300 transition-colors flex items-center gap-1.5 cursor-pointer shadow-xs active:scale-95"
                 >
                   <span>📷</span>
-                  <span className="hidden sm:inline">Photo/Video</span>
+                  <span className="inline">Photo / Video</span>
                 </label>
 
                 <button
                   type="button"
                   onClick={startRecording}
-                  className="px-3.5 py-2 rounded-2xl glass-pill text-xs font-semibold text-rose-700 hover:text-rose-800 hover:border-rose-300 transition-colors flex items-center gap-1.5 cursor-pointer"
+                  className="px-3.5 py-2 rounded-2xl glass-pill text-xs font-semibold text-rose-700 hover:text-rose-800 hover:border-rose-300 transition-colors flex items-center gap-1.5 cursor-pointer shadow-xs active:scale-95"
                 >
                   <span>🎙️</span>
-                  <span className="hidden sm:inline">Voice</span>
+                  <span className="inline">Whisper</span>
                 </button>
               </>
             )}
@@ -873,7 +878,7 @@ export default function Timeline() {
             whileTap={{ scale: 0.97 }}
             onClick={addPost}
             disabled={isPosting}
-            className="py-2.5 px-6 rounded-2xl bg-gradient-to-r from-pink-500 via-rose-500 to-orange-400 text-white font-bold text-xs sm:text-sm shadow-md shadow-pink-500/25 hover:shadow-pink-500/40 transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-60"
+            className="py-2.5 px-5 sm:px-6 rounded-2xl bg-gradient-to-r from-pink-500 via-rose-500 to-orange-400 text-white font-bold text-xs sm:text-sm shadow-md shadow-pink-500/25 hover:shadow-pink-500/40 transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-60"
           >
             {isPosting ? (
               <Spinner size={18} thickness={2.5} speed="fast" />
@@ -887,6 +892,7 @@ export default function Timeline() {
         </div>
       </motion.div>
 
+      {/* View Mode: Scrapbook Album OR Stream Feed */}
       {viewMode === "scrapbook" ? (
         <ScrapbookView posts={posts} room={room} />
       ) : (
@@ -932,9 +938,9 @@ export default function Timeline() {
             ) : (
               timeline.map((item, idx) =>
                 item.type === "session" ? (
-                  <div key={idx} className="w-full mb-10">
-                    {/* Session / Chapter Ribbon Header */}
-                    <div className="relative flex items-center justify-center mb-6 mt-6">
+                  <div key={idx} className="w-full mb-8">
+                    {/* Chapter Ribbon Header */}
+                    <div className="relative flex items-center justify-center mb-5 mt-4">
                       <div className="glass-card px-5 py-2.5 rounded-full shadow-md border border-white/90 flex items-center gap-2.5 bg-gradient-to-r from-rose-50/95 via-pink-50/95 to-amber-50/95">
                         <span className="text-base">🔖</span>
                         <h3
@@ -952,16 +958,21 @@ export default function Timeline() {
                     {/* Session Posts */}
                     <div className="space-y-4">
                       {item.posts!.map((p, i) => (
-                        <PostCard key={`${p._id}-${i}`} post={p} flip={i % 2 === 0} />
+                        <PostCard
+                          key={`${p._id}-${i}`}
+                          post={p}
+                          flip={i % 2 === 0}
+                          onDelete={(id) => setPosts((prev) => prev.filter((postItem) => postItem._id !== id))}
+                        />
                       ))}
                     </div>
 
                     {/* Chapter Ending / Concluded Milestone Card */}
                     {isSessionActive && currentSessionId === item.sessionId ? (
-                      <div className="w-full flex items-center justify-center my-6 px-2">
+                      <div className="w-full flex items-center justify-center my-5 px-2">
                         <div className="glass-card px-5 py-2.5 rounded-2xl border border-amber-200 bg-gradient-to-r from-amber-50/95 to-orange-50/95 shadow-sm flex items-center gap-2.5 text-xs font-semibold text-amber-800">
                           <span className="w-2.5 h-2.5 rounded-full bg-amber-500 animate-ping" />
-                          <span>Chapter in progress... Keep capturing your memories together! 📸</span>
+                          <span>Chapter in progress... Keep capturing your moments together! 📸</span>
                         </div>
                       </div>
                     ) : (
@@ -987,6 +998,7 @@ export default function Timeline() {
                     key={`${item.post!._id}-${idx}`}
                     post={item.post!}
                     flip={idx % 2 === 0}
+                    onDelete={(id) => setPosts((prev) => prev.filter((postItem) => postItem._id !== id))}
                   />
                 )
               )
@@ -1003,24 +1015,63 @@ export default function Timeline() {
         />
       )}
 
-      {/* Session Label Modal */}
+      {/* Session / Chapter Label Modal with Built-in Guided Walkthrough */}
       {showSessionModal && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black/40 backdrop-blur-xs z-50 p-4">
+        <div className="fixed inset-0 flex items-center justify-center bg-black/50 backdrop-blur-xs z-50 p-3 sm:p-4 overflow-y-auto">
           <motion.div
             initial={{ opacity: 0, scale: 0.94 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="glass-card rounded-3xl w-full max-w-sm p-6 shadow-2xl border border-white/90 text-center"
+            className="glass-card rounded-3xl w-full max-w-md p-5 sm:p-7 shadow-2xl border border-white/90 text-center my-auto max-h-[92vh] overflow-y-auto"
           >
-            <div className="text-3xl mb-2">🏷️</div>
+            <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-amber-400 to-pink-500 text-white flex items-center justify-center text-2xl mx-auto mb-2 shadow-md">
+              📍
+            </div>
             <h3
-              className="text-xl font-bold text-gray-800 mb-1"
+              className="text-2xl font-bold text-gray-800 mb-1"
               style={{ fontFamily: "var(--font-serif)" }}
             >
-              Start a New Chapter
+              Start a Story Chapter
             </h3>
-            <p className="text-xs text-gray-500 mb-4">
-              Group memories together (e.g. "Paris Getaway", "Our Anniversary Weekend")
+            <p className="text-xs text-gray-500 mb-3">
+              Group memories for vacations, anniversaries, or weekend getaways!
             </p>
+
+            {/* Visual 3-Step Mini Guide */}
+            <div className="p-3 rounded-2xl bg-gradient-to-r from-amber-50/80 via-pink-50/80 to-orange-50/80 border border-pink-200/70 mb-4 text-left space-y-2 text-[11px] text-gray-700">
+              <div className="flex items-start gap-2">
+                <span className="w-4 h-4 rounded-full bg-pink-500 text-white text-[10px] font-bold flex items-center justify-center shrink-0 mt-0.5">1</span>
+                <p><strong>Name your trip:</strong> Give your chapter a memorable title.</p>
+              </div>
+              <div className="flex items-start gap-2">
+                <span className="w-4 h-4 rounded-full bg-rose-500 text-white text-[10px] font-bold flex items-center justify-center shrink-0 mt-0.5">2</span>
+                <p><strong>Live Tagging:</strong> All polaroids & whispers you post while this chapter is active are grouped together.</p>
+              </div>
+              <div className="flex items-start gap-2">
+                <span className="w-4 h-4 rounded-full bg-amber-500 text-white text-[10px] font-bold flex items-center justify-center shrink-0 mt-0.5">3</span>
+                <p><strong>Preserve Forever:</strong> Tap "Finish Chapter" when your trip ends to seal it as a timeline milestone!</p>
+              </div>
+            </div>
+
+            {/* Quick Ideas Chips */}
+            <div className="flex items-center gap-1.5 overflow-x-auto pb-1.5 mb-3 no-scrollbar text-[11px]">
+              <span className="text-gray-400 font-medium whitespace-nowrap">💡 Ideas:</span>
+              {[
+                "Paris Trip 2026 ✈️",
+                "Anniversary Weekend 💖",
+                "Goa Beach Days 🌴",
+                "Road Trip Adventures 🏕️",
+                "First Home Move-In 🏡",
+              ].map((idea) => (
+                <button
+                  key={idea}
+                  type="button"
+                  onClick={() => setSessionLabel(idea)}
+                  className="px-2.5 py-0.5 rounded-full bg-pink-100/70 hover:bg-pink-200 text-pink-700 font-semibold whitespace-nowrap transition-colors cursor-pointer border border-pink-200/60 shadow-2xs active:scale-95"
+                >
+                  {idea}
+                </button>
+              ))}
+            </div>
 
             <input
               type="text"
@@ -1028,7 +1079,9 @@ export default function Timeline() {
               onChange={(e) => setSessionLabel(e.target.value)}
               placeholder="e.g. Spain Trip 2026"
               className="w-full px-4 py-3 rounded-2xl glass-input text-gray-800 placeholder-gray-400 text-sm font-medium focus:outline-none mb-4"
+              autoFocus
             />
+
             <div className="flex gap-2.5">
               <button
                 onClick={() => setShowSessionModal(false)}
@@ -1041,9 +1094,9 @@ export default function Timeline() {
                   startSession();
                   setShowSessionModal(false);
                 }}
-                className="flex-1 py-2.5 rounded-2xl bg-gradient-to-r from-pink-500 to-orange-400 text-white font-bold text-xs shadow-md hover:shadow-pink-500/30 transition-all cursor-pointer"
+                className="flex-1 py-2.5 rounded-2xl bg-gradient-to-r from-pink-500 to-orange-400 text-white font-bold text-xs shadow-md hover:shadow-pink-500/30 transition-all cursor-pointer active:scale-95"
               >
-                Start Chapter
+                Start Chapter 🚀
               </button>
             </div>
           </motion.div>

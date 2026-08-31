@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import axios from "axios";
 import type { Note } from "../types";
+import { normalizeMediaUrl, formatMemoryDate } from "../utils/media";
 
 type Props = {
   note: Note;
@@ -19,7 +20,7 @@ export default function WaxSealEnvelope({ note, onClose, onNoteOpened }: Props) 
 
     // Generate confetti / sparkle burst
     const emojis = ["✨", "💖", "💕", "🌸", "❤️", "✨"];
-    const newParticles = Array.from({ length: 12 }, (_, i) => ({
+    const newParticles = Array.from({ length: 14 }, (_, i) => ({
       id: i,
       x: (Math.random() - 0.5) * 160,
       y: (Math.random() - 0.5) * 160 - 30,
@@ -50,14 +51,16 @@ export default function WaxSealEnvelope({ note, onClose, onNoteOpened }: Props) 
   };
 
   useEffect(() => {
-    // If note was already read previously, open directly after brief entry
+    // If note was already read previously, open directly after entry
     if (note.isRead) {
       setStage("opened");
     }
   }, [note.isRead]);
 
+  const normalizedAudio = normalizeMediaUrl(note.audio || (note.type === "audio" ? note.content : ""));
+
   return (
-    <div className="fixed inset-0 bg-black/70 backdrop-blur-md flex justify-center items-center z-[100] p-4 overflow-y-auto">
+    <div className="fixed inset-0 bg-black/70 backdrop-blur-md flex justify-center items-center z-[100] p-3 sm:p-4 overflow-y-auto">
       {/* Background click to close */}
       <div className="absolute inset-0" onClick={onClose} />
 
@@ -91,7 +94,6 @@ export default function WaxSealEnvelope({ note, onClose, onNoteOpened }: Props) 
               >
                 {/* Envelope Interior Lining Pattern */}
                 <div className="absolute inset-2 rounded-[28px] bg-gradient-to-b from-rose-100 to-amber-50/90 shadow-inner overflow-hidden">
-                  {/* Subtle diagonal folded envelope creases */}
                   <div className="absolute inset-0 opacity-20 pointer-events-none">
                     <svg className="w-full h-full" viewBox="0 0 400 300" preserveAspectRatio="none">
                       <line x1="0" y1="300" x2="200" y2="150" stroke="#f43f5e" strokeWidth="2" />
@@ -109,9 +111,9 @@ export default function WaxSealEnvelope({ note, onClose, onNoteOpened }: Props) 
                   className="absolute top-0 left-0 right-0 h-36 origin-top bg-gradient-to-b from-rose-300 via-pink-200 to-rose-100 [clip-path:polygon(0_0,100%_0,50%_100%)] shadow-md z-20 border-t border-white/60"
                 />
 
-                {/* Top subtitle */}
+                {/* Top Subtitle */}
                 <div className="relative z-30 pt-6 px-4">
-                  <span className="text-[11px] font-extrabold uppercase tracking-widest text-pink-600 bg-white/70 px-3 py-1 rounded-full shadow-xs">
+                  <span className="text-[10px] sm:text-[11px] font-extrabold uppercase tracking-widest text-pink-600 bg-white/75 px-3 py-1 rounded-full shadow-xs">
                     💌 Confidential Love Letter
                   </span>
                 </div>
@@ -138,7 +140,7 @@ export default function WaxSealEnvelope({ note, onClose, onNoteOpened }: Props) 
                       ❤️
                     </span>
 
-                    {/* Wax seal rim detailing */}
+                    {/* Wax Seal Rim Detailing */}
                     <div className="absolute inset-1 rounded-full border border-red-800/40 pointer-events-none" />
                   </motion.div>
 
@@ -163,7 +165,7 @@ export default function WaxSealEnvelope({ note, onClose, onNoteOpened }: Props) 
                     transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
                     className="mt-3 text-xs font-extrabold text-pink-800 bg-white/90 px-3.5 py-1 rounded-full shadow-md tracking-wide"
                   >
-                    ✨ Tap Wax Seal to Break & Reveal ✨
+                    ✨ Tap Wax Seal to Open ✨
                   </motion.span>
                 </div>
 
@@ -175,20 +177,20 @@ export default function WaxSealEnvelope({ note, onClose, onNoteOpened }: Props) 
             </motion.div>
           ) : (
             /* ============================================================ */
-            /* 2. UNFOLDED LETTER / CONTENT VIEW */
+            /* 2. UNFOLDED LETTER VIEW */
             /* ============================================================ */
             <motion.div
               key="opened-letter"
               initial={{ opacity: 0, y: 40, scale: 0.9 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-              className="w-full relative rounded-3xl bg-gradient-to-b from-[#fffcf7] via-[#fff8f5] to-[#fff3f3] p-6 sm:p-8 shadow-[0_25px_60px_rgba(244,114,182,0.35)] border-2 border-pink-200/90 overflow-hidden"
+              className="w-full relative rounded-3xl bg-gradient-to-b from-[#fffcf7] via-[#fff8f5] to-[#fff3f3] p-5 sm:p-8 shadow-[0_25px_60px_rgba(244,114,182,0.35)] border-2 border-pink-200/90 overflow-hidden"
             >
               {/* Washi Tape at Top */}
               <div className="washi-tape" />
 
               {/* Letter Header */}
-              <div className="text-center mt-3 mb-6 pb-3 border-b border-dashed border-pink-200">
+              <div className="text-center mt-3 mb-5 pb-3 border-b border-dashed border-pink-200">
                 <div className="inline-flex items-center gap-1 text-2xl mb-1">
                   <span>💌</span>
                   <span>✨</span>
@@ -200,18 +202,13 @@ export default function WaxSealEnvelope({ note, onClose, onNoteOpened }: Props) 
                   Secret Love Note
                 </h4>
                 <p className="text-[11px] text-gray-400 font-mono mt-0.5">
-                  Opened on{" "}
-                  {new Date().toLocaleDateString("en-US", {
-                    month: "short",
-                    day: "numeric",
-                    year: "numeric",
-                  })}
+                  Opened on {formatMemoryDate(new Date().toISOString())}
                 </p>
               </div>
 
               {/* Note Content */}
               {note.type === "text" ? (
-                <div className="my-6 px-2 min-h-[120px] flex items-center justify-center text-center">
+                <div className="my-5 px-2 min-h-[120px] flex items-center justify-center text-center">
                   <p
                     className="text-2xl sm:text-3xl text-gray-800 leading-relaxed drop-shadow-xs"
                     style={{ fontFamily: "var(--font-handwriting), cursive" }}
@@ -220,14 +217,14 @@ export default function WaxSealEnvelope({ note, onClose, onNoteOpened }: Props) 
                   </p>
                 </div>
               ) : (
-                <div className="my-6 p-4 rounded-2xl bg-gradient-to-r from-pink-100/70 to-rose-100/70 border border-pink-200 flex flex-col gap-2.5">
+                <div className="my-5 p-4 rounded-2xl bg-gradient-to-r from-pink-100/70 to-rose-100/70 border border-pink-200 flex flex-col gap-2.5">
                   <div className="flex items-center gap-2 text-xs font-bold text-pink-700">
                     <span className="text-base">🎙️</span>
                     <span>Voice Whisper from the Heart:</span>
                   </div>
                   <audio
                     controls
-                    src={note.audio || note.content}
+                    src={normalizedAudio}
                     className="w-full h-10 accent-pink-500"
                     autoPlay
                   />
@@ -235,15 +232,15 @@ export default function WaxSealEnvelope({ note, onClose, onNoteOpened }: Props) 
               )}
 
               {/* Handwritten Sign-off Footer */}
-              <div className="mt-8 pt-4 border-t border-dashed border-pink-200 flex items-center justify-between text-xs">
+              <div className="mt-6 pt-4 border-t border-dashed border-pink-200 flex items-center justify-between text-xs">
                 <span className="text-gray-400 font-mono text-[11px]">
-                  Sent: {new Date(note.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+                  Sent: {formatMemoryDate(note.createdAt)}
                 </span>
                 <span
                   className="text-xl text-pink-600 font-bold"
                   style={{ fontFamily: "var(--font-handwriting), cursive" }}
                 >
-                  Forever & Always, with all my love ❤️
+                  Forever & Always ❤️
                 </span>
               </div>
 
@@ -252,7 +249,7 @@ export default function WaxSealEnvelope({ note, onClose, onNoteOpened }: Props) 
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={onClose}
-                className="mt-6 w-full py-3 rounded-2xl bg-gradient-to-r from-pink-500 via-rose-500 to-orange-400 text-white font-bold text-sm shadow-md shadow-pink-500/25 hover:shadow-pink-500/40 transition-all flex items-center justify-center gap-2 cursor-pointer"
+                className="mt-5 w-full py-3 rounded-2xl bg-gradient-to-r from-pink-500 via-rose-500 to-orange-400 text-white font-bold text-sm shadow-md shadow-pink-500/25 hover:shadow-pink-500/40 transition-all flex items-center justify-center gap-2 cursor-pointer"
               >
                 <span>Save in Love Vault</span>
                 <span>✨</span>

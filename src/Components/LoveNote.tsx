@@ -5,6 +5,7 @@ import { toast } from "react-toastify";
 import type { Note, User } from "../types";
 import Spinner from "./Spinner";
 import WaxSealEnvelope from "./WaxSealEnvelope";
+import { formatMemoryDate } from "../utils/media";
 
 type Props = {
   roomId: string;
@@ -97,12 +98,12 @@ export default function LoveNoteModal({
         )}
       </AnimatePresence>
 
-      <div className="fixed inset-0 flex items-center justify-center bg-black/40 backdrop-blur-xs z-50 p-4">
+      <div className="fixed inset-0 flex items-center justify-center bg-black/40 backdrop-blur-xs z-50 p-3 sm:p-4">
         <motion.div
           initial={{ opacity: 0, scale: 0.94, y: 15 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.94, y: 15 }}
-          className="glass-card rounded-3xl w-full max-w-md p-6 sm:p-7 shadow-2xl border border-white/90 flex flex-col max-h-[85vh] overflow-hidden"
+          className="glass-card rounded-3xl w-full max-w-md p-5 sm:p-7 shadow-2xl border border-white/90 flex flex-col max-h-[85vh] overflow-hidden"
         >
           {/* Header */}
           <div className="flex items-center justify-between pb-3 border-b border-pink-100/80 mb-4">
@@ -220,10 +221,7 @@ export default function LoveNoteModal({
                             </p>
                           </div>
                           <span className="text-[10px] text-gray-400 font-mono">
-                            {new Date(n.createdAt).toLocaleDateString("en-US", {
-                              month: "short",
-                              day: "numeric",
-                            })}
+                            {formatMemoryDate(n.createdAt)}
                           </span>
                         </div>
                       ))}
@@ -236,7 +234,7 @@ export default function LoveNoteModal({
 
           {activeTab === "write" && (
             <div className="flex flex-col gap-3">
-              {/* Whimsical Inspiration Prompt Chips */}
+              {/* Inspiration Prompts */}
               <div className="flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar text-[11px]">
                 <span className="text-gray-400 font-medium whitespace-nowrap">✨ Prompts:</span>
                 {[

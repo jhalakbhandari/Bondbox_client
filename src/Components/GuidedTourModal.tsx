@@ -8,6 +8,10 @@ type TourStep = {
   description: string;
   tip: string;
   gradient: string;
+  previewCard?: {
+    tag: string;
+    subtext: string;
+  };
 };
 
 const TOUR_STEPS: TourStep[] = [
@@ -25,16 +29,29 @@ const TOUR_STEPS: TourStep[] = [
     badge: "Memory Composer",
     title: "Capture Polaroids, Videos & Voice Notes",
     description:
-      "Post snapshots with organic polaroid frames, upload short video clips, or hold to record sweet voice whispers.",
+      "Post snapshots with organic polaroid frames, upload short video clips, or hold to record sweet voice whispers with soundwaves.",
     tip: "💡 Tip: Double-tap any polaroid in the stream to send floating reaction hearts!",
     gradient: "from-rose-500 to-orange-400",
   },
   {
+    icon: "📍",
+    badge: "Trips & Chapters",
+    title: "Live Trips & Story Chapters",
+    description:
+      "Going on vacation, celebrating an anniversary, or planning a date night? Tap 'Start Trip / Chapter' (e.g. 'Paris Getaway', 'Our 1st Anniversary'). Every photo, video, and whisper you post will automatically be bound into that chapter!",
+    tip: "💡 Tip: When your trip ends, tap 'Finish Chapter' to permanently seal and celebrate that chapter in your timeline story.",
+    gradient: "from-amber-500 via-rose-400 to-pink-500",
+    previewCard: {
+      tag: "🔖 Chapter: Paris Getaway 2026",
+      subtext: "Live Trip Active • 12 Memories Tagged",
+    },
+  },
+  {
     icon: "📖",
     badge: "2-Sided Scrapbook",
-    title: "Interactive Open Book Collage",
+    title: "Interactive Keepsake Album",
     description:
-      "Experience your memories like a real keepsake photo album with 2-sided spreads, washi tape, and page-turning animations.",
+      "Experience your journey like a real open book keepsake photo album with 2-sided spreads, washi tape, stamps, and page-turning animations.",
     tip: "💡 Tip: Use arrow keys (← / →) to flip pages, or toggle between Feed & Scrapbook in Settings!",
     gradient: "from-amber-500 to-pink-500",
   },
@@ -92,13 +109,13 @@ export default function GuidedTourModal({ isOpen, onClose }: Props) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/50 backdrop-blur-xs">
       <motion.div
         initial={{ opacity: 0, scale: 0.92, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.92, y: 20 }}
         transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-        className="relative w-full max-w-lg glass-card rounded-3xl p-6 sm:p-8 shadow-2xl border border-white/90 overflow-hidden"
+        className="relative w-full max-w-lg glass-card rounded-3xl p-5 sm:p-8 shadow-2xl border border-white/90 overflow-hidden max-h-[92vh] overflow-y-auto"
       >
         {/* Background decorative glowing orb */}
         <div
@@ -106,12 +123,12 @@ export default function GuidedTourModal({ isOpen, onClose }: Props) {
         />
 
         {/* Header: Step counter & Skip */}
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center justify-between mb-3 sm:mb-4">
           <div className="flex items-center gap-2">
             <span className="px-3 py-1 rounded-full text-xs font-bold bg-pink-100/80 text-pink-700 border border-pink-200/60 shadow-2xs">
               ✨ Step {currentStep + 1} of {TOUR_STEPS.length}
             </span>
-            <span className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider">
+            <span className="text-[10px] sm:text-[11px] font-semibold text-gray-400 uppercase tracking-wider">
               {step.badge}
             </span>
           </div>
@@ -132,27 +149,39 @@ export default function GuidedTourModal({ isOpen, onClose }: Props) {
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -25 }}
             transition={{ duration: 0.3 }}
-            className="flex flex-col items-center text-center my-4"
+            className="flex flex-col items-center text-center my-3 sm:my-4"
           >
             {/* Animated Icon Orb */}
             <motion.div
               animate={{ y: [0, -6, 0], rotate: [0, 3, -3, 0] }}
               transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-              className={`w-20 h-20 rounded-3xl bg-gradient-to-br ${step.gradient} text-white text-4xl shadow-xl flex items-center justify-center mb-5 border-2 border-white/80`}
+              className={`w-16 h-16 sm:w-20 sm:h-20 rounded-3xl bg-gradient-to-br ${step.gradient} text-white text-3xl sm:text-4xl shadow-xl flex items-center justify-center mb-4 sm:mb-5 border-2 border-white/80`}
             >
               {step.icon}
             </motion.div>
 
             <h3
-              className="text-2xl sm:text-3xl font-extrabold text-gray-800 tracking-tight mb-2.5"
+              className="text-xl sm:text-3xl font-extrabold text-gray-800 tracking-tight mb-2"
               style={{ fontFamily: "var(--font-serif)" }}
             >
               {step.title}
             </h3>
 
-            <p className="text-sm text-gray-600 leading-relaxed max-w-md mb-4 font-normal">
+            <p className="text-xs sm:text-sm text-gray-600 leading-relaxed max-w-md mb-3.5 font-normal">
               {step.description}
             </p>
+
+            {/* Special Visual Preview for Chapters / Features */}
+            {step.previewCard && (
+              <div className="w-full mb-3 p-3 rounded-2xl bg-gradient-to-r from-amber-50 to-pink-50 border border-amber-200/80 text-center shadow-inner">
+                <span className="text-xs font-bold text-amber-800 block">
+                  {step.previewCard.tag}
+                </span>
+                <span className="text-[10px] text-pink-600 font-medium">
+                  {step.previewCard.subtext}
+                </span>
+              </div>
+            )}
 
             {/* Pro Tip Box */}
             <div className="w-full p-3 rounded-2xl bg-pink-50/70 border border-pink-200/60 text-xs text-pink-800 text-left font-medium shadow-2xs">
@@ -162,7 +191,7 @@ export default function GuidedTourModal({ isOpen, onClose }: Props) {
         </AnimatePresence>
 
         {/* Progress Bar & Dots */}
-        <div className="flex items-center justify-center gap-1.5 my-5">
+        <div className="flex items-center justify-center gap-1.5 my-4 sm:my-5">
           {TOUR_STEPS.map((_, idx) => (
             <button
               key={idx}
@@ -193,7 +222,7 @@ export default function GuidedTourModal({ isOpen, onClose }: Props) {
             whileHover={{ scale: 1.03 }}
             whileTap={{ scale: 0.97 }}
             onClick={handleNext}
-            className={`px-6 py-2.5 rounded-2xl bg-gradient-to-r ${step.gradient} text-white text-xs font-bold shadow-lg shadow-pink-500/25 hover:shadow-pink-500/40 transition-all flex items-center gap-1.5 cursor-pointer`}
+            className={`px-5 sm:px-6 py-2.5 rounded-2xl bg-gradient-to-r ${step.gradient} text-white text-xs font-bold shadow-lg shadow-pink-500/25 hover:shadow-pink-500/40 transition-all flex items-center gap-1.5 cursor-pointer active:scale-95`}
           >
             <span>{isLastStep ? "Start Creating Magic ✨" : "Next Step"}</span>
             {!isLastStep && <span>→</span>}

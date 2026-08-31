@@ -67,7 +67,7 @@ export default function BucketListModal({
       );
       setItems((prev) => prev.map((i) => (i._id === id ? res.data : i)));
       if (!completed) {
-        toast("🎉 Dream achieved together!", {
+        toast("🎉 Dream achieved together! 🌸", {
           autoClose: 2000,
         });
       }
@@ -97,12 +97,12 @@ export default function BucketListModal({
   const progressPercent = items.length > 0 ? Math.round((completedCount / items.length) * 100) : 0;
 
   return (
-    <div className="fixed inset-0 bg-black/40 backdrop-blur-xs flex justify-center items-center z-50 p-4">
+    <div className="fixed inset-0 bg-black/40 backdrop-blur-xs flex justify-center items-center z-50 p-3 sm:p-4">
       <motion.div
         initial={{ opacity: 0, scale: 0.94, y: 15 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.94, y: 15 }}
-        className="glass-card rounded-3xl w-full max-w-md p-6 sm:p-7 shadow-2xl border border-white/90 flex flex-col max-h-[85vh]"
+        className="glass-card rounded-3xl w-full max-w-md p-5 sm:p-7 shadow-2xl border border-white/90 flex flex-col max-h-[85vh]"
       >
         {/* Header */}
         <div className="flex items-center justify-between pb-3 border-b border-pink-100/80 mb-4">
@@ -142,7 +142,7 @@ export default function BucketListModal({
         )}
 
         {/* Input + Add button */}
-        <div className="flex flex-col gap-2 mb-4">
+        <div className="flex flex-col gap-2 mb-3.5">
           <div className="flex gap-2">
             <input
               type="text"
@@ -150,19 +150,19 @@ export default function BucketListModal({
               onChange={(e) => setNewItem(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && addItem()}
               placeholder="Add a dream to fulfill together..."
-              className="flex-1 px-4 py-2.5 rounded-2xl glass-input text-gray-800 placeholder-gray-400 text-sm font-medium focus:outline-none"
+              className="flex-1 px-3.5 py-2.5 rounded-2xl glass-input text-gray-800 placeholder-gray-400 text-xs sm:text-sm font-medium focus:outline-none"
             />
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={addItem}
-              className="px-4 py-2.5 bg-gradient-to-r from-pink-500 to-orange-400 text-white rounded-2xl font-bold shadow-md hover:shadow-pink-500/30 transition-all cursor-pointer text-sm"
+              className="px-4 py-2.5 bg-gradient-to-r from-pink-500 to-orange-400 text-white rounded-2xl font-bold shadow-md hover:shadow-pink-500/30 transition-all cursor-pointer text-xs sm:text-sm whitespace-nowrap active:scale-95"
             >
               ➕ Add
             </motion.button>
           </div>
 
-          {/* Whimsical Inspiration Quick Chips */}
+          {/* Quick Idea Chips */}
           <div className="flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar text-[11px]">
             <span className="text-gray-400 font-medium whitespace-nowrap">💡 Ideas:</span>
             {[
@@ -176,7 +176,7 @@ export default function BucketListModal({
                 key={idea}
                 type="button"
                 onClick={() => setNewItem(idea)}
-                className="px-2.5 py-0.5 rounded-full bg-pink-100/70 hover:bg-pink-200 text-pink-700 font-semibold whitespace-nowrap transition-colors cursor-pointer border border-pink-200/60"
+                className="px-2.5 py-0.5 rounded-full bg-pink-100/70 hover:bg-pink-200 text-pink-700 font-semibold whitespace-nowrap transition-colors cursor-pointer border border-pink-200/60 shadow-2xs active:scale-95"
               >
                 {idea}
               </button>
@@ -218,7 +218,7 @@ export default function BucketListModal({
                       className="w-4 h-4 text-pink-500 rounded border-pink-300 focus:ring-pink-400 accent-pink-500 cursor-pointer"
                     />
                     <span
-                      className={`text-sm ${
+                      className={`text-xs sm:text-sm ${
                         i.completed
                           ? "line-through text-gray-400 font-normal"
                           : "text-gray-800 font-medium"

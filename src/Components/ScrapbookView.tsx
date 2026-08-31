@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import type { Post, Room } from "../types";
+import MemoryImage from "./MemoryImage";
+import { formatMemoryDate, formatMemoryTime, normalizeMediaUrl } from "../utils/media";
 
 type Props = {
   posts: Post[];
@@ -8,16 +10,16 @@ type Props = {
 };
 
 export default function ScrapbookView({ posts, room }: Props) {
-  // Sort posts strictly in ascending order (oldest to newest) to tell the chronological journey
+  // Sort posts in ascending order (oldest to newest) to tell the chronological journey
   const sortedPosts = [...posts].sort(
     (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
   );
 
-  // Each spread has 2 pages: Left Page and Right Page
+  // Each spread has 2 pages on desktop (Left Page & Right Page)
   const POSTS_PER_SPREAD = 2;
   const totalSpreads = Math.max(1, Math.ceil(sortedPosts.length / POSTS_PER_SPREAD));
 
-  // Always initialize / open on the CURRENT (latest / most recent) spread
+  // Open on the latest / most recent spread by default
   const [currentSpread, setCurrentSpread] = useState(() =>
     Math.max(0, totalSpreads - 1)
   );
@@ -25,7 +27,6 @@ export default function ScrapbookView({ posts, room }: Props) {
   const [likes, setLikes] = useState<Record<string, number>>({});
   const [floatingHearts, setFloatingHearts] = useState<{ id: number; x: number }[]>([]);
 
-  // Update to the latest spread whenever posts are refreshed or added
   useEffect(() => {
     setCurrentSpread(Math.max(0, totalSpreads - 1));
   }, [totalSpreads]);
@@ -44,7 +45,7 @@ export default function ScrapbookView({ posts, room }: Props) {
     }
   };
 
-  // Keyboard arrow navigation
+  // Keyboard navigation
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "ArrowRight") handleNext();
@@ -72,10 +73,10 @@ export default function ScrapbookView({ posts, room }: Props) {
           className="text-2xl font-bold text-gray-800"
           style={{ fontFamily: "var(--font-serif)" }}
         >
-          Our Scrapbook is Blank
+          Our Keepsake Scrapbook
         </h3>
         <p className="text-gray-500 text-xs sm:text-sm mt-2 leading-relaxed">
-          Capture your first photo, text, or whisper above to start filling the pages of your scrapbook!
+          No memories captured yet. Post a snapshot, whisper, or note above to start filling the pages of your story together!
         </p>
       </div>
     );
@@ -94,9 +95,8 @@ export default function ScrapbookView({ posts, room }: Props) {
     isLeft: boolean
   ) => {
     if (!post) {
-      // Blank / To Be Continued Page on the Right
       return (
-        <div className="w-full h-full flex flex-col items-center justify-center p-6 text-center border-dashed border-2 border-pink-200/80 rounded-2xl bg-[#fffdfa]/60">
+        <div className="w-full h-full min-h-[300px] flex flex-col items-center justify-center p-6 text-center border-dashed border-2 border-pink-200/80 rounded-2xl bg-[#fffdfa]/60">
           <div className="text-4xl mb-2 animate-bounce">🌸</div>
           <h4
             className="text-xl font-bold text-pink-600"
@@ -104,7 +104,7 @@ export default function ScrapbookView({ posts, room }: Props) {
           >
             Our Story Continues...
           </h4>
-          <p className="text-xs text-gray-400 mt-2 max-w-[200px] leading-relaxed">
+          <p className="text-xs text-gray-400 mt-2 max-w-[220px] leading-relaxed">
             Capture another snapshot or whisper above to fill this next page of your journey!
           </p>
           <div className="mt-4 px-3 py-1 rounded-full bg-pink-100/70 text-pink-700 text-[10px] font-bold">
@@ -115,19 +115,12 @@ export default function ScrapbookView({ posts, room }: Props) {
     }
 
     const postLikes = likes[post._id] || 0;
-    const formattedDate = new Date(post.createdAt).toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-    });
-    const formattedTime = new Date(post.createdAt).toLocaleTimeString("en-US", {
-      hour: "2-digit",
-      minute: "2-digit",
-    });
+    const normalizedVideo = normalizeMediaUrl(post.video);
+    const normalizedAudio = normalizeMediaUrl(post.audio);
 
     return (
       <div className="relative w-full h-full flex flex-col justify-between p-4 sm:p-6">
-        {/* Washi Tape Accent - Organic Angle */}
+        {/* Washi Tape Accent */}
         <div
           className={`washi-tape ${
             isLeft ? "-top-3.5 left-6 -rotate-2" : "-top-3.5 right-6 rotate-2"
@@ -148,8 +141,12 @@ export default function ScrapbookView({ posts, room }: Props) {
           )}
 
           <div className="text-right">
-            <span className="text-[11px] font-bold text-gray-700 font-mono">{formattedDate}</span>
-            <span className="text-[10px] text-gray-400 font-mono ml-1.5">{formattedTime}</span>
+            <span className="text-[11px] font-bold text-gray-700 font-mono">
+              {formatMemoryDate(post.createdAt)}
+            </span>
+            <span className="text-[10px] text-gray-400 font-mono ml-1.5 hidden sm:inline">
+              {formatMemoryTime(post.createdAt)}
+            </span>
           </div>
         </div>
 
@@ -158,47 +155,55 @@ export default function ScrapbookView({ posts, room }: Props) {
           {/* Polaroid Snapshot Frame */}
           {post.photo && (
             <div
-              className={`relative mx-auto w-full max-w-[280px] p-2.5 bg-white shadow-md border border-gray-100 transition-transform duration-300 ${
-                isLeft ? "-rotate-1.5 hover:rotate-0" : "rotate-1.5 hover:rotate-0"
+              className={`relative mx-auto w-full max-w-[290px] p-2.5 bg-white shadow-md border border-gray-100 rounded-xl transition-transform duration-300 ${
+                isLeft ? "sm:-rotate-1 sm:hover:rotate-0" : "sm:rotate-1 sm:hover:rotate-0"
               }`}
             >
               {/* Photo Corner Mounting Tabs */}
-              <div className="absolute -top-1 -left-1 w-3.5 h-3.5 border-t-2 border-l-2 border-pink-400 rounded-tl-xs z-10" />
-              <div className="absolute -top-1 -right-1 w-3.5 h-3.5 border-t-2 border-r-2 border-pink-400 rounded-tr-xs z-10" />
-              <div className="absolute -bottom-1 -left-1 w-3.5 h-3.5 border-b-2 border-l-2 border-pink-400 rounded-bl-xs z-10" />
-              <div className="absolute -bottom-1 -right-1 w-3.5 h-3.5 border-b-2 border-r-2 border-pink-400 rounded-br-xs z-10" />
+              <div className="photo-corner-tl" />
+              <div className="photo-corner-tr" />
+              <div className="photo-corner-bl" />
+              <div className="photo-corner-br" />
 
-              <img
+              <MemoryImage
                 src={post.photo}
                 alt="Scrapbook Memory"
-                className="w-full object-cover max-h-48 sm:max-h-56 rounded-lg"
+                caption={post.text}
+                date={post.createdAt}
+                containerClassName="rounded-lg shadow-inner"
+                className="w-full object-cover max-h-52 sm:max-h-60 rounded-lg"
               />
             </div>
           )}
 
           {/* Video Frame */}
-          {post.video && (
+          {normalizedVideo && (
             <div className="relative mx-auto w-full max-w-[280px] rounded-xl overflow-hidden shadow-md border border-gray-200 my-1">
-              <video controls className="w-full rounded-xl max-h-48 object-cover" preload="metadata">
-                <source src={post.video} />
+              <video
+                controls
+                className="w-full rounded-xl max-h-48 object-cover"
+                preload="metadata"
+                playsInline
+              >
+                <source src={normalizedVideo} />
               </video>
             </div>
           )}
 
           {/* Audio Whisper Card */}
-          {post.audio && (
+          {normalizedAudio && (
             <div className="w-full max-w-[280px] my-2 p-3 rounded-2xl bg-gradient-to-r from-rose-50 to-pink-50 border border-pink-200 shadow-2xs flex flex-col gap-1.5">
               <div className="flex items-center gap-1.5 text-[11px] font-bold text-pink-600">
                 <span className="text-sm">🎙️</span>
                 <span>Voice Whisper:</span>
               </div>
               <audio controls className="w-full h-8 accent-pink-500">
-                <source src={post.audio} />
+                <source src={normalizedAudio} />
               </audio>
             </div>
           )}
 
-          {/* Handwritten Caption / Note */}
+          {/* Handwritten Caption */}
           {post.text && (
             <div
               className={`mt-3 px-2 py-1.5 max-w-[280px] text-center ${
@@ -209,7 +214,9 @@ export default function ScrapbookView({ posts, room }: Props) {
             >
               <p
                 className={`text-gray-800 leading-relaxed ${
-                  !post.photo && !post.video ? "text-2xl sm:text-3xl" : "text-xl sm:text-2xl"
+                  !post.photo && !post.video
+                    ? "text-2xl sm:text-3xl"
+                    : "text-xl sm:text-2xl"
                 }`}
                 style={{ fontFamily: "var(--font-handwriting), cursive" }}
               >
@@ -228,12 +235,14 @@ export default function ScrapbookView({ posts, room }: Props) {
             <button
               type="button"
               onClick={(e) => handleHeartClick(post._id, e)}
-              className="flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-pink-50 hover:bg-pink-100 text-pink-600 font-medium transition-colors cursor-pointer border border-pink-200/60 shadow-2xs"
+              className="flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-pink-50 hover:bg-pink-100 text-pink-600 font-medium transition-colors cursor-pointer border border-pink-200/60 shadow-2xs active:scale-95"
             >
               <motion.span whileTap={{ scale: 1.4 }} className="text-xs">
                 {postLikes > 0 ? "💖" : "🤍"}
               </motion.span>
-              <span className="text-[11px] font-bold">{postLikes > 0 ? postLikes : "Love"}</span>
+              <span className="text-[11px] font-bold">
+                {postLikes > 0 ? postLikes : "Love"}
+              </span>
             </button>
 
             {/* Floating Hearts */}
@@ -260,28 +269,28 @@ export default function ScrapbookView({ posts, room }: Props) {
   // Spread flip animation variants
   const spreadVariants = {
     enter: (dir: number) => ({
-      rotateY: dir > 0 ? 45 : -45,
+      rotateY: dir > 0 ? 35 : -35,
       opacity: 0,
-      scale: 0.95,
+      scale: 0.96,
     }),
     center: {
       rotateY: 0,
       opacity: 1,
       scale: 1,
-      transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] as const },
+      transition: { duration: 0.45, ease: [0.22, 1, 0.36, 1] as const },
     },
     exit: (dir: number) => ({
-      rotateY: dir > 0 ? -45 : 45,
+      rotateY: dir > 0 ? -35 : 35,
       opacity: 0,
-      scale: 0.95,
-      transition: { duration: 0.4, ease: [0.22, 1, 0.36, 1] as const },
+      scale: 0.96,
+      transition: { duration: 0.35, ease: [0.22, 1, 0.36, 1] as const },
     }),
   };
 
   return (
-    <div className="w-full max-w-4xl flex flex-col items-center select-none">
+    <div className="w-full max-w-4xl flex flex-col items-center select-none px-1">
       {/* Scrapbook Header */}
-      <div className="w-full flex items-center justify-between mb-4 px-3">
+      <div className="w-full flex items-center justify-between mb-4 px-2 sm:px-3">
         <div className="flex items-center gap-2">
           <span className="text-2xl">📖</span>
           <div>
@@ -292,16 +301,16 @@ export default function ScrapbookView({ posts, room }: Props) {
               {room.name || "Our Story"} Keepsake Album
             </h3>
             <p className="text-[10px] text-gray-400 font-mono">
-              Chronological Journey (Oldest → Present Day)
+              Chronological Journey (Oldest → Present)
             </p>
           </div>
         </div>
 
-        {/* Current Spread Badge with Mobile Nav */}
+        {/* Spread Navigation Badges */}
         <div className="flex items-center gap-1.5 sm:gap-2">
           {currentSpread === totalSpreads - 1 && (
             <span className="hidden sm:inline-block px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-700 text-[10px] font-extrabold animate-pulse">
-              📍 Current Day
+              📍 Current
             </span>
           )}
 
@@ -331,12 +340,12 @@ export default function ScrapbookView({ posts, room }: Props) {
         </div>
       </div>
 
-      {/* Main 2-Sided Open Book Container */}
-      <div className="relative w-full [perspective:1600px] px-1 sm:px-3">
-        {/* Leather Book Cover Outer Frame */}
-        <div className="relative w-full rounded-[36px] p-3 sm:p-4 bg-gradient-to-br from-amber-950/20 via-pink-900/15 to-rose-950/20 shadow-[0_30px_70px_rgba(244,114,182,0.35)] border-4 border-amber-900/25">
+      {/* Main Open Keepsake Album Container */}
+      <div className="relative w-full [perspective:1600px]">
+        {/* Outer Frame with Romantic Glow */}
+        <div className="relative w-full rounded-[32px] p-2.5 sm:p-4 bg-gradient-to-br from-amber-950/20 via-pink-900/15 to-rose-950/20 shadow-[0_25px_60px_rgba(244,114,182,0.3)] border-2 sm:border-4 border-amber-900/20">
           
-          {/* Animated 2-Page Spread */}
+          {/* Animated Spread */}
           <AnimatePresence mode="wait" custom={direction}>
             <motion.div
               key={currentSpread}
@@ -345,17 +354,17 @@ export default function ScrapbookView({ posts, room }: Props) {
               initial="enter"
               animate="center"
               exit="exit"
-              className="relative min-h-[480px] sm:min-h-[540px] rounded-[26px] bg-[#fffdfa] bg-[radial-gradient(#f0e6df_1px,transparent_1px)] [background-size:16px_16px] shadow-2xl border border-amber-100 grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-dashed divide-amber-200/80 overflow-hidden"
+              className="relative min-h-[460px] sm:min-h-[520px] rounded-[24px] bg-[#fffdfa] bg-[radial-gradient(#f0e6df_1px,transparent_1px)] [background-size:16px_16px] shadow-xl border border-amber-100 grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-dashed divide-amber-200/80 overflow-hidden"
             >
-              {/* Center Book Spine Crease & Shadow */}
+              {/* Spine Crease on Desktop */}
               <div className="hidden md:block absolute left-1/2 top-0 bottom-0 w-8 -translate-x-1/2 pointer-events-none z-20 bg-gradient-to-r from-black/5 via-transparent to-black/5" />
 
-              {/* LEFT PAGE (Odd Page Number in 1-based index) */}
+              {/* LEFT PAGE */}
               <div className="relative w-full h-full">
                 {renderCollagePage(leftPost, leftPostIndex + 1, true)}
               </div>
 
-              {/* RIGHT PAGE (Even Page Number in 1-based index) */}
+              {/* RIGHT PAGE */}
               <div className="relative w-full h-full">
                 {renderCollagePage(rightPost, rightPostIndex + 1, false)}
               </div>
@@ -363,11 +372,11 @@ export default function ScrapbookView({ posts, room }: Props) {
           </AnimatePresence>
         </div>
 
-        {/* Left Arrow Flip Button (Click zone) */}
+        {/* Left Arrow Flip Button (Desktop) */}
         {currentSpread > 0 && (
           <button
             onClick={handlePrev}
-            className="absolute -left-2 sm:-left-5 md:-left-7 top-1/2 -translate-y-1/2 w-8 h-8 sm:w-11 sm:h-11 md:w-12 md:h-12 rounded-full bg-white/95 text-pink-600 shadow-xl border border-pink-200 hover:bg-pink-500 hover:text-white hover:scale-105 active:scale-95 transition-all flex items-center justify-center text-sm sm:text-lg md:text-xl font-extrabold cursor-pointer z-30 group"
+            className="hidden sm:flex absolute -left-4 md:-left-6 top-1/2 -translate-y-1/2 w-10 h-10 md:w-12 md:h-12 rounded-full bg-white/95 text-pink-600 shadow-xl border border-pink-200 hover:bg-pink-500 hover:text-white hover:scale-105 active:scale-95 transition-all items-center justify-center text-lg md:text-xl font-extrabold cursor-pointer z-30"
             title="Flip to Earlier Memories (←)"
             aria-label="Previous Spread"
           >
@@ -375,11 +384,11 @@ export default function ScrapbookView({ posts, room }: Props) {
           </button>
         )}
 
-        {/* Right Arrow Flip Button (Click zone) */}
+        {/* Right Arrow Flip Button (Desktop) */}
         {currentSpread < totalSpreads - 1 && (
           <button
             onClick={handleNext}
-            className="absolute -right-2 sm:-right-5 md:-right-7 top-1/2 -translate-y-1/2 w-8 h-8 sm:w-11 sm:h-11 md:w-12 md:h-12 rounded-full bg-white/95 text-pink-600 shadow-xl border border-pink-200 hover:bg-pink-500 hover:text-white hover:scale-105 active:scale-95 transition-all flex items-center justify-center text-sm sm:text-lg md:text-xl font-extrabold cursor-pointer z-30 group"
+            className="hidden sm:flex absolute -right-4 md:-right-6 top-1/2 -translate-y-1/2 w-10 h-10 md:w-12 md:h-12 rounded-full bg-white/95 text-pink-600 shadow-xl border border-pink-200 hover:bg-pink-500 hover:text-white hover:scale-105 active:scale-95 transition-all items-center justify-center text-lg md:text-xl font-extrabold cursor-pointer z-30"
             title="Flip to Recent Memories (→)"
             aria-label="Next Spread"
           >
@@ -389,12 +398,12 @@ export default function ScrapbookView({ posts, room }: Props) {
       </div>
 
       {/* Bottom Navigation Toolbar */}
-      <div className="flex items-center justify-between w-full max-w-md mt-6 px-3 sm:px-4">
+      <div className="flex items-center justify-between w-full max-w-md mt-5 px-3 sm:px-4">
         <button
           onClick={handlePrev}
           disabled={currentSpread === 0}
-          className="px-3.5 py-2 sm:px-4 sm:py-2 rounded-2xl glass-pill font-bold text-xs text-gray-700 hover:text-pink-600 transition-all disabled:opacity-30 cursor-pointer flex items-center gap-1.5 active:scale-95 shadow-sm"
-          aria-label="Earlier page"
+          className="px-3.5 py-2 rounded-2xl glass-pill font-bold text-xs text-gray-700 hover:text-pink-600 transition-all disabled:opacity-30 cursor-pointer flex items-center gap-1.5 active:scale-95 shadow-sm"
+          aria-label="Earlier spread"
         >
           <span>←</span>
           <span>Earlier</span>
@@ -428,8 +437,8 @@ export default function ScrapbookView({ posts, room }: Props) {
         <button
           onClick={handleNext}
           disabled={currentSpread === totalSpreads - 1}
-          className="px-3.5 py-2 sm:px-4 sm:py-2 rounded-2xl glass-pill font-bold text-xs text-gray-700 hover:text-pink-600 transition-all disabled:opacity-30 cursor-pointer flex items-center gap-1.5 active:scale-95 shadow-sm"
-          aria-label="Next page"
+          className="px-3.5 py-2 rounded-2xl glass-pill font-bold text-xs text-gray-700 hover:text-pink-600 transition-all disabled:opacity-30 cursor-pointer flex items-center gap-1.5 active:scale-95 shadow-sm"
+          aria-label="Next spread"
         >
           <span>Recent</span>
           <span>→</span>
@@ -437,8 +446,8 @@ export default function ScrapbookView({ posts, room }: Props) {
       </div>
 
       {/* Keyboard Hint */}
-      <p className="text-[11px] text-gray-400 font-medium mt-3">
-        💡 Tip: Use <kbd className="px-1.5 py-0.5 rounded-md bg-white border border-gray-200 text-gray-600 font-mono text-[10px]">←</kbd> and <kbd className="px-1.5 py-0.5 rounded-md bg-white border border-gray-200 text-gray-600 font-mono text-[10px]">→</kbd> keys to turn pages
+      <p className="text-[11px] text-gray-400 font-medium mt-2.5">
+        💡 Tip: Use <kbd className="px-1.5 py-0.5 rounded-md bg-white border border-gray-200 text-gray-600 font-mono text-[10px]">←</kbd> and <kbd className="px-1.5 py-0.5 rounded-md bg-white border border-gray-200 text-gray-600 font-mono text-[10px]">→</kbd> arrow keys to turn pages
       </p>
     </div>
   );
