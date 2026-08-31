@@ -12,6 +12,7 @@ import GoldenTicketModal from "../Components/GoldenTicketModal";
 import BondWrappedModal from "../Components/BondWrappedModal";
 import ScrapbookView from "../Components/ScrapbookView";
 import GuidedTourModal from "../Components/GuidedTourModal";
+import BuyMeCoffeeModal from "../Components/BuyMeCoffeeModal";
 import InfiniteScroll from "react-infinite-scroll-component";
 import Spinner from "../Components/Spinner";
 
@@ -34,6 +35,7 @@ export default function Timeline() {
   const [showGoldenTicketModal, setShowGoldenTicketModal] = useState(false);
   const [showBondWrappedModal, setShowBondWrappedModal] = useState(false);
   const [showTourModal, setShowTourModal] = useState(false);
+  const [showCoffeeModal, setShowCoffeeModal] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
   const [recordingSeconds, setRecordingSeconds] = useState(0);
   const recordingTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -517,6 +519,17 @@ export default function Timeline() {
             <span>Bucket List</span>
           </motion.button>
 
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => setShowCoffeeModal(true)}
+            className="hidden sm:flex px-3 py-2 rounded-2xl glass-pill text-xs font-bold text-amber-900 hover:text-amber-950 hover:border-amber-400 transition-colors items-center gap-1.5 cursor-pointer bg-gradient-to-r from-amber-100/90 to-orange-100/90 shadow-2xs"
+            title="Buy Us a Coffee"
+          >
+            <span className="animate-bounce">☕</span>
+            <span>Buy Coffee</span>
+          </motion.button>
+
           {/* Settings / Menu Dropdown */}
           <div className="relative">
             <motion.button
@@ -579,6 +592,16 @@ export default function Timeline() {
                       </button>
                     </div>
                   </div>
+
+                  <button
+                    className="w-full text-left px-3 py-2 rounded-xl text-amber-900 hover:bg-amber-100/70 transition-colors flex items-center gap-2 cursor-pointer bg-amber-50/50"
+                    onClick={() => {
+                      setShowCoffeeModal(true);
+                      setShowDropdown(false);
+                    }}
+                  >
+                    <span>☕</span> Buy Us a Coffee & Support
+                  </button>
 
                   <button
                     className="w-full text-left px-3 py-2 rounded-xl text-amber-800 hover:bg-amber-50 transition-colors flex items-center gap-2 cursor-pointer"
@@ -1061,6 +1084,12 @@ export default function Timeline() {
       <GuidedTourModal
         isOpen={showTourModal}
         onClose={() => setShowTourModal(false)}
+      />
+
+      {/* Buy Me a Coffee Support Modal */}
+      <BuyMeCoffeeModal
+        isOpen={showCoffeeModal}
+        onClose={() => setShowCoffeeModal(false)}
       />
     </div>
   );
