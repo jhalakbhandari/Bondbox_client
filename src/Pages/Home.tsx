@@ -1,98 +1,105 @@
 import { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import type { Room } from "../types";
 import { Flip, toast } from "react-toastify";
 import Spinner from "../Components/Spinner";
+import GoldenTicketModal from "../Components/GoldenTicketModal";
 
 export default function Home() {
-  const [mode, setMode] = useState(""); // "create" | "join"
+  const [mode, setMode] = useState<"" | "create" | "join">("");
   const [name, setName] = useState("");
   const [code, setCode] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const [showTicketModal, setShowTicketModal] = useState(false);
 
   const [createdRoom, setCreatedRoom] = useState<Room | null>(null);
 
   const navigate = useNavigate();
 
+  const isAlphanumeric = (value: string) => /^[a-zA-Z0-9 ]+$/.test(value);
+
   const createRoom = async () => {
-    if (!isAlphanumeric(name)) {
+    if (!name.trim() || !isAlphanumeric(name)) {
       toast.error("Room name can only contain letters and numbers");
       return;
     }
     setIsLoading(true);
     const token = localStorage.getItem("token");
-    // console.log(token);
-    if (!token) throw new Error("No token found");
+    if (!token) {
+      navigate("/auth");
+      return;
+    }
 
-    const res = await axios.post(
-      `${import.meta.env.VITE_API_URL}/room/create`,
-      { name }, // body only needs room name
-      { headers: { Authorization: `Bearer ${token}` } } // correct headers
-    );
-    setCreatedRoom(res.data); // save created room info
-    toast("Room Created! Share the code!", {
-      position: "top-center",
-      autoClose: 400,
-      hideProgressBar: false,
-      closeOnClick: false,
-      pauseOnHover: true,
-      draggable: true,
-      progress: undefined,
-      theme: "light",
-      transition: Flip,
-    });
-    setIsLoading(false);
-    // navigate(`/timeline/${res.data._id}`); // use room ID for timeline
+    try {
+      const res = await axios.post(
+        `${import.meta.env.VITE_API_URL}/room/create`,
+        { name: name.trim() },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setCreatedRoom(res.data);
+      toast("🎉 Room Created! Share your code with your loved one!", {
+        position: "top-center",
+        autoClose: 3500,
+        theme: "light",
+        transition: Flip,
+      });
+    } catch (err: unknown) {
+      if (axios.isAxiosError(err)) {
+        toast.error(err.response?.data?.message || "Failed to create room", {
+          position: "top-center",
+          autoClose: 5000,
+          theme: "light",
+          transition: Flip,
+        });
+      } else {
+        toast.error("Failed to create room");
+      }
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const joinRoom = async () => {
-    if (!isAlphanumeric(code)) {
-      toast.error("Room name can only contain letters and numbers");
+    if (!code.trim() || !/^[a-zA-Z0-9]+$/.test(code.trim())) {
+      toast.error("Room code can only contain letters and numbers");
       return;
     }
     const token = localStorage.getItem("token");
-    // console.log(token);
+    if (!token) {
+      navigate("/auth");
+      return;
+    }
 
-    if (!token) throw new Error("No token found");
     setIsLoading(true);
 
     try {
       const res = await axios.post(
-        `${import.meta.env.VITE_API_URL}/room/join/${code}`,
+        `${import.meta.env.VITE_API_URL}/room/join/${code.trim()}`,
         {},
         {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
-      toast("Enjoy Sharing!", {
+      toast("Connected! Welcome to your space 💕", {
         position: "top-center",
-        autoClose: 2000,
-        hideProgressBar: false,
-        closeOnClick: false,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
+        autoClose: 2500,
         theme: "light",
         transition: Flip,
       });
+      localStorage.setItem("roomId", res.data._id);
       navigate(`/timeline/${res.data._id}`);
     } catch (err: unknown) {
       if (axios.isAxiosError(err)) {
-        // If backend sends a proper error response (like res.status(400).json({ message: "Invalid credentials" }))
-        toast.error(err.response?.data?.message || "Something went wrong", {
+        toast.error(err.response?.data?.message || "Room not found or already full", {
           position: "top-center",
           autoClose: 5000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
           theme: "light",
           transition: Flip,
         });
       } else if (err instanceof Error) {
-        // Fallback for generic errors
         toast.error(err.message, {
           position: "top-center",
           autoClose: 5000,
@@ -100,123 +107,270 @@ export default function Home() {
           transition: Flip,
         });
       } else {
-        toast.error("Unknown error occurred", {
-          position: "top-center",
-          autoClose: 5000,
-          theme: "light",
-          transition: Flip,
-        });
+        toast.error("Unknown error occurred");
       }
+    } finally {
+      setIsLoading(false);
     }
-    setIsLoading(false);
   };
-  const isAlphanumeric = (value: string) => /^[a-zA-Z0-9]+$/.test(value);
+
+  const handleCopyCode = (roomCode: string) => {
+    navigator.clipboard.writeText(roomCode);
+    setCopied(true);
+    toast.success("Code copied to clipboard! 📋");
+    setTimeout(() => setCopied(false), 3000);
+  };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-pink-200 via-pink-100 to-orange-200 text-center">
-      {/* Title */}
-      {isLoading ?? <Spinner />}
-      <motion.h1
-        initial={{ scale: 0.8, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        transition={{ duration: 0.8 }}
-        className="text-6xl md:text-7xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-orange-400 drop-shadow-[0_5px_20px_rgba(255,105,180,0.6)]"
-        style={{ fontFamily: "'Comic Neue', cursive" }}
-      >
-        BondBox
-      </motion.h1>
+    <div className="relative min-h-screen flex flex-col items-center justify-center p-4 sm:p-6 overflow-hidden bg-gradient-to-br from-pink-100 via-rose-50 to-orange-100">
+      {/* Ambient background orbs */}
+      <div className="ambient-glow-1" />
+      <div className="ambient-glow-2" />
 
-      {/* Buttons */}
-      <div className="flex gap-6 mt-10">
-        <motion.button
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.95 }}
-          onClick={() => setMode("create")}
-          className="px-6 py-3 rounded-2xl bg-gradient-to-r from-pink-400 to-orange-400 text-white font-semibold shadow-lg hover:shadow-pink-400/50"
-        >
-          Create a Room
-        </motion.button>
-
-        <motion.button
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.95 }}
-          onClick={() => setMode("join")}
-          className="px-6 py-3 rounded-2xl bg-gradient-to-r from-orange-400 to-pink-400 text-white font-semibold shadow-lg hover:shadow-orange-400/50"
-        >
-          Join a Room
-        </motion.button>
-      </div>
-
-      {/* Conditional input */}
+      {/* Floating decorative emojis */}
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: mode ? 1 : 0, y: mode ? 0 : 20 }}
-        transition={{ duration: 0.5 }}
-        className="mt-10 w-full max-w-md px-4"
+        animate={{ y: [0, -10, 0], rotate: [0, 4, 0] }}
+        transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
+        className="hidden md:flex absolute top-16 left-20 text-4xl select-none opacity-50"
       >
-        {mode === "create" && (
-          <div className="flex flex-col gap-4">
-            <input
-              value={name}
-              // onChange={(e) => setName(e.target.value)}
-              onChange={(e) => {
-                const value = e.target.value;
-                if (value === "" || /^[a-zA-Z0-9]*$/.test(value)) {
-                  setName(value); // only update if valid
-                }
-              }}
-              placeholder="Enter room name"
-              className="p-3 rounded-xl border-2 border-pink-300 focus:outline-none focus:ring-2 focus:ring-pink-400 shadow-md"
-            />
-            <button
-              onClick={createRoom}
-              className="px-6 py-3 rounded-xl bg-gradient-to-r from-pink-500 to-orange-500 text-white font-bold shadow-lg hover:shadow-pink-500/40"
+        🌸
+      </motion.div>
+      <motion.div
+        animate={{ y: [0, 12, 0], rotate: [0, -5, 0] }}
+        transition={{ duration: 6, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+        className="hidden md:flex absolute bottom-20 right-20 text-4xl select-none opacity-50"
+      >
+        💌
+      </motion.div>
+
+      <div className="relative z-10 w-full max-w-xl flex flex-col items-center text-center">
+        {/* Header Tag */}
+        <motion.div
+          initial={{ opacity: 0, y: -16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full glass-pill text-xs font-semibold text-pink-600 mb-4 tracking-wide shadow-sm"
+        >
+          <span>✨</span>
+          <span>Shared Memory Sanctuary</span>
+        </motion.div>
+
+        {/* Title */}
+        <motion.h1
+          initial={{ scale: 0.9, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ duration: 0.7 }}
+          className="text-5xl sm:text-6xl md:text-7xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-pink-500 via-rose-400 to-orange-400 drop-shadow-sm tracking-tight mb-3"
+          style={{ fontFamily: "var(--font-serif)" }}
+        >
+          BondBox
+        </motion.h1>
+
+        <motion.p
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+          className="text-gray-600 text-sm sm:text-base max-w-md mb-8 sm:mb-10 font-normal leading-relaxed"
+        >
+          Capture milestones, secret love notes, audio whispers, and photos in your private shared space.
+        </motion.p>
+
+        {/* Room action cards */}
+        {!createdRoom && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.3 }}
+            className="flex flex-col sm:flex-row gap-4 sm:gap-6 w-full max-w-md justify-center"
+          >
+            <motion.button
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.97 }}
+              onClick={() => setMode(mode === "create" ? "" : "create")}
+              className={`flex-1 py-4 px-6 rounded-3xl font-bold text-sm sm:text-base transition-all duration-300 flex items-center justify-center gap-2.5 shadow-lg ${
+                mode === "create"
+                  ? "bg-gradient-to-r from-pink-500 to-rose-400 text-white shadow-pink-400/40 ring-4 ring-pink-300/40"
+                  : "glass-card text-gray-800 hover:text-pink-600 hover:border-pink-300"
+              }`}
             >
-              Create
-            </button>
-          </div>
+              <span>🌸</span>
+              <span>Create a Room</span>
+            </motion.button>
+
+            <motion.button
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.97 }}
+              onClick={() => setMode(mode === "join" ? "" : "join")}
+              className={`flex-1 py-4 px-6 rounded-3xl font-bold text-sm sm:text-base transition-all duration-300 flex items-center justify-center gap-2.5 shadow-lg ${
+                mode === "join"
+                  ? "bg-gradient-to-r from-orange-400 to-rose-400 text-white shadow-orange-400/40 ring-4 ring-orange-300/40"
+                  : "glass-card text-gray-800 hover:text-orange-600 hover:border-orange-300"
+              }`}
+            >
+              <span>🔑</span>
+              <span>Join a Room</span>
+            </motion.button>
+          </motion.div>
         )}
 
-        {mode === "join" && (
-          <div className="flex flex-col gap-4">
-            <input
-              value={code}
-              // onChange={(e) => setCode(e.target.value)}
-              onChange={(e) => {
-                const value = e.target.value;
-                if (value === "" || /^[a-zA-Z0-9]*$/.test(value)) {
-                  setCode(value); // only update if valid
-                }
-              }}
-              placeholder="Enter room code"
-              className="p-3 rounded-xl border-2 border-orange-300 focus:outline-none focus:ring-2 focus:ring-orange-400 shadow-md"
-            />
-            <button
-              onClick={joinRoom}
-              className="px-6 py-3 rounded-xl bg-gradient-to-r from-orange-500 to-pink-500 text-white font-bold shadow-lg hover:shadow-orange-500/40"
+        {/* Form Container */}
+        <AnimatePresence mode="wait">
+          {mode && !createdRoom && (
+            <motion.div
+              key={mode}
+              initial={{ opacity: 0, y: 16, height: 0 }}
+              animate={{ opacity: 1, y: 0, height: "auto" }}
+              exit={{ opacity: 0, y: -10, height: 0 }}
+              transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+              className="mt-6 w-full max-w-md"
             >
-              Join
-            </button>
-          </div>
-        )}
-      </motion.div>
-      {createdRoom && (
-        <div className="mt-6 p-4 bg-white shadow-lg rounded-xl text-center">
-          <p className="text-lg font-bold text-pink-600">
-            🎉 Room created successfully!
-          </p>
-          <p className="mt-2">Share this code with your partner:</p>
-          <p className="text-2xl font-mono text-orange-500 mt-2">
-            {createdRoom.code}
-          </p>
-          <button
-            onClick={() => navigate(`/timeline/${createdRoom._id}`)}
-            className="mt-4 px-6 py-2 rounded-xl bg-gradient-to-r from-pink-500 to-orange-500 text-white font-bold shadow-lg hover:scale-105 transition"
+              <div className="glass-card rounded-3xl p-6 sm:p-8 shadow-xl border border-white/80">
+                {mode === "create" ? (
+                  <div className="flex flex-col gap-4">
+                    <div className="text-left">
+                      <label className="block text-xs font-semibold text-gray-600 mb-1.5 ml-1">
+                        Name Your Space
+                      </label>
+                      <input
+                        value={name}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          if (value === "" || /^[a-zA-Z0-9 ]*$/.test(value)) {
+                            setName(value);
+                          }
+                        }}
+                        placeholder="e.g. Mia & Leo's Little World"
+                        className="w-full px-4 py-3 rounded-2xl glass-input text-gray-800 placeholder-gray-400 text-sm font-medium focus:outline-none"
+                      />
+                    </div>
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={createRoom}
+                      disabled={isLoading}
+                      className="w-full py-3.5 px-6 rounded-2xl bg-gradient-to-r from-pink-500 to-rose-400 text-white font-bold text-sm shadow-md shadow-pink-500/25 hover:shadow-pink-500/40 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60"
+                    >
+                      {isLoading ? (
+                        <Spinner size={20} thickness={2.5} speed="fast" />
+                      ) : (
+                        <>
+                          <span>Create Space</span>
+                          <span>✨</span>
+                        </>
+                      )}
+                    </motion.button>
+                  </div>
+                ) : (
+                  <div className="flex flex-col gap-4">
+                    <div className="text-left">
+                      <label className="block text-xs font-semibold text-gray-600 mb-1.5 ml-1">
+                        Enter Secret Room Code
+                      </label>
+                      <input
+                        value={code}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          if (value === "" || /^[a-zA-Z0-9]*$/.test(value)) {
+                            setCode(value);
+                          }
+                        }}
+                        placeholder="e.g. ab3k9x"
+                        className="w-full px-4 py-3 rounded-2xl glass-input text-gray-800 placeholder-gray-400 text-sm font-medium font-mono tracking-wider focus:outline-none"
+                      />
+                    </div>
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={joinRoom}
+                      disabled={isLoading}
+                      className="w-full py-3.5 px-6 rounded-2xl bg-gradient-to-r from-orange-400 to-rose-400 text-white font-bold text-sm shadow-md shadow-orange-500/25 hover:shadow-orange-500/40 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60"
+                    >
+                      {isLoading ? (
+                        <Spinner size={20} thickness={2.5} speed="fast" />
+                      ) : (
+                        <>
+                          <span>Join Space</span>
+                          <span>🗝️</span>
+                        </>
+                      )}
+                    </motion.button>
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Room Created Success Modal */}
+        {createdRoom && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.92 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.5, ease: [0.34, 1.56, 0.64, 1] }}
+            className="mt-6 w-full max-w-md glass-card rounded-3xl p-6 sm:p-8 shadow-2xl border border-white/90"
           >
-            Go to Timeline
-          </button>
-        </div>
-      )}
+            <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-pink-400 to-orange-300 text-white flex items-center justify-center text-2xl mx-auto mb-3 shadow-md">
+              🎉
+            </div>
+            <h3
+              className="text-2xl font-bold text-gray-800"
+              style={{ fontFamily: "var(--font-serif)" }}
+            >
+              Room Created!
+            </h3>
+            <p className="text-gray-500 text-xs mt-1">
+              Share this secret key with your partner to connect:
+            </p>
+
+            {/* Glowing Code Card */}
+            <div className="mt-4 p-4 rounded-2xl bg-gradient-to-r from-pink-50 to-orange-50 border border-pink-200 flex items-center justify-between shadow-inner">
+              <span className="text-2xl font-mono font-bold tracking-widest text-pink-600">
+                {createdRoom.code}
+              </span>
+              <button
+                onClick={() => handleCopyCode(createdRoom.code)}
+                className="px-3 py-1.5 rounded-xl text-xs font-semibold bg-white border border-pink-200 text-pink-700 shadow-sm hover:bg-pink-100 transition-colors flex items-center gap-1 cursor-pointer"
+              >
+                {copied ? "✓ Copied!" : "📋 Copy"}
+              </button>
+            </div>
+
+            <div className="flex flex-col gap-2.5 mt-6">
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => setShowTicketModal(true)}
+                className="w-full py-3 px-6 rounded-2xl bg-gradient-to-r from-amber-500 via-rose-400 to-pink-500 text-white font-bold text-sm shadow-md shadow-amber-500/20 hover:shadow-amber-500/35 transition-all flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <span>🎟️</span>
+                <span>View & Share VIP Boarding Pass</span>
+              </motion.button>
+
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => {
+                  localStorage.setItem("roomId", createdRoom._id);
+                  navigate(`/timeline/${createdRoom._id}`);
+                }}
+                className="w-full py-3 px-6 rounded-2xl bg-white border border-pink-200 text-pink-600 font-bold text-sm shadow-sm hover:bg-pink-50 transition-all flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <span>Enter Our Timeline</span>
+                <span>🌸</span>
+              </motion.button>
+            </div>
+          </motion.div>
+        )}
+
+        {/* Golden Ticket Invite Modal */}
+        {showTicketModal && createdRoom && (
+          <GoldenTicketModal
+            roomName={createdRoom.name}
+            roomCode={createdRoom.code}
+            onClose={() => setShowTicketModal(false)}
+          />
+        )}
+      </div>
     </div>
   );
 }

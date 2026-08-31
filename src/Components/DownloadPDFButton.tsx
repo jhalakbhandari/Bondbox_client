@@ -4,6 +4,7 @@ import { useState } from "react";
 
 export default function DownloadPDFButton({ roomId }: { roomId: string }) {
   const [isLoading, setIsLoading] = useState(false);
+
   const downloadPDF = async () => {
     try {
       const token = localStorage.getItem("token");
@@ -17,15 +18,13 @@ export default function DownloadPDFButton({ roomId }: { roomId: string }) {
         }
       );
 
-      // if (!res.ok) throw new Error("Failed to download PDF");
       if (!res.ok) {
-        // try to parse backend JSON { error: "..." }
         let errorMsg = "Failed to download PDF";
         try {
           const data = await res.json();
           if (data?.error) errorMsg = data.error;
         } catch {
-          // ignore JSON parse error, keep default
+          // ignore parse error
         }
         throw new Error(errorMsg);
       }
@@ -37,27 +36,30 @@ export default function DownloadPDFButton({ roomId }: { roomId: string }) {
       a.download = `memories-${roomId}.pdf`;
       a.click();
       window.URL.revokeObjectURL(url);
+      toast.success("Timeline PDF exported successfully! 📄✨");
     } catch (err: unknown) {
       console.error(err);
-
       if (err instanceof Error) {
         toast.error(err.message);
       } else {
         toast.error("Something went wrong");
       }
+    } finally {
+      setIsLoading(false);
     }
-    setIsLoading(false);
   };
 
   return (
-    <div>
-      {isLoading && <Spinner />}
-      {!isLoading &&<button
-        onClick={downloadPDF}
-        className="block w-full px-4 py-2 hover:bg-pink-100 rounded-lg"
-      >
-        Export Memories (PDF)
-      </button>}
-    </div>
+    <button
+      onClick={downloadPDF}
+      disabled={isLoading}
+      className="w-full text-left px-3 py-2 rounded-xl text-gray-700 hover:bg-pink-100/70 transition-colors flex items-center justify-between cursor-pointer disabled:opacity-60"
+    >
+      <div className="flex items-center gap-2">
+        <span>📄</span>
+        <span>Export Keepsake (PDF)</span>
+      </div>
+      {isLoading && <Spinner size={14} thickness={2} speed="fast" />}
+    </button>
   );
 }

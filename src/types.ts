@@ -9,11 +9,17 @@ export type Room = {
   name: string;
   code: string;
   users: User[];
+  createdAt?: string;
 };
 
 // Post type
 export type Post = {
-  sessionId: { _id: string; label?: string };
+  sessionId: {
+    _id: string;
+    label?: string;
+    startedAt?: string;
+    finishedAt?: string;
+  };
   _id: string;
   text: string;
   createdAt: string;

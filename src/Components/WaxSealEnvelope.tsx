@@ -1,0 +1,266 @@
+import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import axios from "axios";
+import type { Note } from "../types";
+
+type Props = {
+  note: Note;
+  onClose: () => void;
+  onNoteOpened?: (noteId: string) => void;
+};
+
+export default function WaxSealEnvelope({ note, onClose, onNoteOpened }: Props) {
+  // states: "sealed" | "breaking" | "opened"
+  const [stage, setStage] = useState<"sealed" | "breaking" | "opened">("sealed");
+  const [particles, setParticles] = useState<{ id: number; x: number; y: number; emoji: string }[]>([]);
+
+  const handleBreakSeal = async () => {
+    if (stage !== "sealed") return;
+
+    // Generate confetti / sparkle burst
+    const emojis = ["✨", "💖", "💕", "🌸", "❤️", "✨"];
+    const newParticles = Array.from({ length: 12 }, (_, i) => ({
+      id: i,
+      x: (Math.random() - 0.5) * 160,
+      y: (Math.random() - 0.5) * 160 - 30,
+      emoji: emojis[Math.floor(Math.random() * emojis.length)],
+    }));
+    setParticles(newParticles);
+    setStage("breaking");
+
+    // Mark as read in backend
+    try {
+      const token = localStorage.getItem("token");
+      if (token && !note.isRead) {
+        await axios.post(
+          `${import.meta.env.VITE_API_URL}/lovenote/read/${note._id}`,
+          {},
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        onNoteOpened?.(note._id);
+      }
+    } catch (err) {
+      console.error("Failed to mark note as read:", err);
+    }
+
+    // Transition to opened state after flap animation
+    setTimeout(() => {
+      setStage("opened");
+    }, 600);
+  };
+
+  useEffect(() => {
+    // If note was already read previously, open directly after brief entry
+    if (note.isRead) {
+      setStage("opened");
+    }
+  }, [note.isRead]);
+
+  return (
+    <div className="fixed inset-0 bg-black/70 backdrop-blur-md flex justify-center items-center z-[100] p-4 overflow-y-auto">
+      {/* Background click to close */}
+      <div className="absolute inset-0" onClick={onClose} />
+
+      <div className="relative z-10 w-full max-w-md flex flex-col items-center my-auto">
+        {/* Floating Close Button */}
+        <button
+          onClick={onClose}
+          className="absolute -top-12 right-0 w-9 h-9 rounded-full bg-white/90 shadow-xl text-gray-700 flex items-center justify-center font-bold text-sm hover:bg-white transition cursor-pointer z-50"
+          title="Close"
+        >
+          ✕
+        </button>
+
+        <AnimatePresence mode="wait">
+          {stage !== "opened" ? (
+            /* ============================================================ */
+            /* 1. SEALED ENVELOPE VIEW */
+            /* ============================================================ */
+            <motion.div
+              key="sealed-envelope"
+              initial={{ opacity: 0, scale: 0.85, y: 30 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: -20 }}
+              transition={{ duration: 0.5, ease: [0.34, 1.56, 0.64, 1] }}
+              className="w-full relative select-none"
+            >
+              {/* Envelope Card Container */}
+              <div
+                onClick={handleBreakSeal}
+                className="relative w-full h-72 sm:h-80 rounded-[32px] bg-gradient-to-br from-amber-50 via-rose-100 to-pink-200 p-1 shadow-[0_20px_60px_rgba(244,114,182,0.4)] border-2 border-white/80 cursor-pointer overflow-hidden flex flex-col items-center justify-between text-center group"
+              >
+                {/* Envelope Interior Lining Pattern */}
+                <div className="absolute inset-2 rounded-[28px] bg-gradient-to-b from-rose-100 to-amber-50/90 shadow-inner overflow-hidden">
+                  {/* Subtle diagonal folded envelope creases */}
+                  <div className="absolute inset-0 opacity-20 pointer-events-none">
+                    <svg className="w-full h-full" viewBox="0 0 400 300" preserveAspectRatio="none">
+                      <line x1="0" y1="300" x2="200" y2="150" stroke="#f43f5e" strokeWidth="2" />
+                      <line x1="400" y1="300" x2="200" y2="150" stroke="#f43f5e" strokeWidth="2" />
+                      <line x1="0" y1="0" x2="200" y2="150" stroke="#f43f5e" strokeWidth="2" />
+                      <line x1="400" y1="0" x2="200" y2="150" stroke="#f43f5e" strokeWidth="2" />
+                    </svg>
+                  </div>
+                </div>
+
+                {/* Animated Top Flap */}
+                <motion.div
+                  animate={stage === "breaking" ? { rotateX: 160, opacity: 0 } : { rotateX: 0 }}
+                  transition={{ duration: 0.5, ease: "easeInOut" }}
+                  className="absolute top-0 left-0 right-0 h-36 origin-top bg-gradient-to-b from-rose-300 via-pink-200 to-rose-100 [clip-path:polygon(0_0,100%_0,50%_100%)] shadow-md z-20 border-t border-white/60"
+                />
+
+                {/* Top subtitle */}
+                <div className="relative z-30 pt-6 px-4">
+                  <span className="text-[11px] font-extrabold uppercase tracking-widest text-pink-600 bg-white/70 px-3 py-1 rounded-full shadow-xs">
+                    💌 Confidential Love Letter
+                  </span>
+                </div>
+
+                {/* Central Wax Seal Stamp */}
+                <div className="relative z-40 my-auto flex flex-col items-center">
+                  <motion.div
+                    whileHover={{ scale: 1.12 }}
+                    whileTap={{ scale: 0.92 }}
+                    animate={
+                      stage === "breaking"
+                        ? { scale: [1, 1.3, 0], rotate: [0, -15, 25], opacity: 0 }
+                        : { scale: [1, 1.04, 1] }
+                    }
+                    transition={
+                      stage === "breaking"
+                        ? { duration: 0.5 }
+                        : { duration: 2.5, repeat: Infinity, ease: "easeInOut" }
+                    }
+                    className="relative w-20 h-20 rounded-full bg-gradient-to-tr from-red-700 via-rose-600 to-red-500 shadow-[0_10px_25px_rgba(225,29,72,0.5),inset_0_2px_4px_rgba(255,255,255,0.4)] border-4 border-rose-300 flex items-center justify-center cursor-pointer"
+                  >
+                    {/* Wax Stamp Heart Icon */}
+                    <span className="text-3xl text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)] select-none">
+                      ❤️
+                    </span>
+
+                    {/* Wax seal rim detailing */}
+                    <div className="absolute inset-1 rounded-full border border-red-800/40 pointer-events-none" />
+                  </motion.div>
+
+                  {/* Breaking Particles Explosion */}
+                  <AnimatePresence>
+                    {particles.map((p) => (
+                      <motion.span
+                        key={p.id}
+                        initial={{ opacity: 1, scale: 0.5, x: 0, y: 0 }}
+                        animate={{ opacity: 0, scale: 1.5, x: p.x, y: p.y }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.8, ease: "easeOut" }}
+                        className="absolute text-xl pointer-events-none select-none"
+                      >
+                        {p.emoji}
+                      </motion.span>
+                    ))}
+                  </AnimatePresence>
+
+                  <motion.span
+                    animate={{ y: [0, -4, 0] }}
+                    transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+                    className="mt-3 text-xs font-extrabold text-pink-800 bg-white/90 px-3.5 py-1 rounded-full shadow-md tracking-wide"
+                  >
+                    ✨ Tap Wax Seal to Break & Reveal ✨
+                  </motion.span>
+                </div>
+
+                {/* Bottom Sender Badge */}
+                <div className="relative z-30 pb-4 text-xs font-semibold text-gray-500">
+                  <span>To: <strong>My Favorite Person</strong> 💕</span>
+                </div>
+              </div>
+            </motion.div>
+          ) : (
+            /* ============================================================ */
+            /* 2. UNFOLDED LETTER / CONTENT VIEW */
+            /* ============================================================ */
+            <motion.div
+              key="opened-letter"
+              initial={{ opacity: 0, y: 40, scale: 0.9 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+              className="w-full relative rounded-3xl bg-gradient-to-b from-[#fffcf7] via-[#fff8f5] to-[#fff3f3] p-6 sm:p-8 shadow-[0_25px_60px_rgba(244,114,182,0.35)] border-2 border-pink-200/90 overflow-hidden"
+            >
+              {/* Washi Tape at Top */}
+              <div className="washi-tape" />
+
+              {/* Letter Header */}
+              <div className="text-center mt-3 mb-6 pb-3 border-b border-dashed border-pink-200">
+                <div className="inline-flex items-center gap-1 text-2xl mb-1">
+                  <span>💌</span>
+                  <span>✨</span>
+                </div>
+                <h4
+                  className="text-xl font-bold text-pink-600 tracking-tight"
+                  style={{ fontFamily: "var(--font-serif)" }}
+                >
+                  Secret Love Note
+                </h4>
+                <p className="text-[11px] text-gray-400 font-mono mt-0.5">
+                  Opened on{" "}
+                  {new Date().toLocaleDateString("en-US", {
+                    month: "short",
+                    day: "numeric",
+                    year: "numeric",
+                  })}
+                </p>
+              </div>
+
+              {/* Note Content */}
+              {note.type === "text" ? (
+                <div className="my-6 px-2 min-h-[120px] flex items-center justify-center text-center">
+                  <p
+                    className="text-2xl sm:text-3xl text-gray-800 leading-relaxed drop-shadow-xs"
+                    style={{ fontFamily: "var(--font-handwriting), cursive" }}
+                  >
+                    "{note.content}"
+                  </p>
+                </div>
+              ) : (
+                <div className="my-6 p-4 rounded-2xl bg-gradient-to-r from-pink-100/70 to-rose-100/70 border border-pink-200 flex flex-col gap-2.5">
+                  <div className="flex items-center gap-2 text-xs font-bold text-pink-700">
+                    <span className="text-base">🎙️</span>
+                    <span>Voice Whisper from the Heart:</span>
+                  </div>
+                  <audio
+                    controls
+                    src={note.audio || note.content}
+                    className="w-full h-10 accent-pink-500"
+                    autoPlay
+                  />
+                </div>
+              )}
+
+              {/* Handwritten Sign-off Footer */}
+              <div className="mt-8 pt-4 border-t border-dashed border-pink-200 flex items-center justify-between text-xs">
+                <span className="text-gray-400 font-mono text-[11px]">
+                  Sent: {new Date(note.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+                </span>
+                <span
+                  className="text-xl text-pink-600 font-bold"
+                  style={{ fontFamily: "var(--font-handwriting), cursive" }}
+                >
+                  Forever & Always, with all my love ❤️
+                </span>
+              </div>
+
+              {/* Action Button */}
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={onClose}
+                className="mt-6 w-full py-3 rounded-2xl bg-gradient-to-r from-pink-500 via-rose-500 to-orange-400 text-white font-bold text-sm shadow-md shadow-pink-500/25 hover:shadow-pink-500/40 transition-all flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <span>Save in Love Vault</span>
+                <span>✨</span>
+              </motion.button>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    </div>
+  );
+}

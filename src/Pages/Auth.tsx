@@ -1,7 +1,7 @@
 import { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Flip, toast } from "react-toastify";
 import Spinner from "../Components/Spinner";
 
@@ -17,8 +17,20 @@ export default function Auth({
 
   const navigate = useNavigate();
 
+  const validatePassword = (password: string) => {
+    return /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[^A-Za-z0-9]).{6,}$/.test(
+      password
+    )
+      ? null
+      : "Password must be at least 6 characters long, and include uppercase, lowercase, number, and special character.";
+  };
+
   const handleAuth = async () => {
-    setIsLoading(true);
+    if (!email.trim() || !password.trim()) {
+      toast.error("Please fill in both email and password");
+      return;
+    }
+
     if (mode === "signup") {
       const error = validatePassword(password);
       if (error) {
@@ -28,23 +40,22 @@ export default function Auth({
           theme: "light",
           transition: Flip,
         });
-        return; // stop signup
+        return;
       }
     }
+
+    setIsLoading(true);
+
     try {
       const res = await axios.post(
         `${import.meta.env.VITE_API_URL}/auth/${mode}`,
         { email, password }
       );
-      if (mode == "login") {
-        toast("Login successful!", {
+
+      if (mode === "login") {
+        toast("Welcome back! ✨", {
           position: "top-center",
-          autoClose: 5000,
-          hideProgressBar: false,
-          closeOnClick: false,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
+          autoClose: 3000,
           theme: "light",
           transition: Flip,
         });
@@ -59,14 +70,9 @@ export default function Auth({
           navigate("/", { replace: true });
         }
       } else {
-        toast("Signup successful!", {
+        toast("Account created! Please log in 💕", {
           position: "top-center",
-          autoClose: 2000,
-          hideProgressBar: false,
-          closeOnClick: false,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
+          autoClose: 3000,
           theme: "light",
           transition: Flip,
         });
@@ -74,23 +80,15 @@ export default function Auth({
         setEmail("");
         setPassword("");
       }
-      setIsLoading(true);
     } catch (err: unknown) {
-      setIsLoading(false);
       if (axios.isAxiosError(err)) {
-        // If backend sends a proper error response (like res.status(400).json({ message: "Invalid credentials" }))
-        toast.error(err.response?.data?.message || "Something went wrong", {
+        toast.error(err.response?.data?.message || err.response?.data?.errors?.[0]?.msg || "Something went wrong", {
           position: "top-center",
           autoClose: 5000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
           theme: "light",
           transition: Flip,
         });
       } else if (err instanceof Error) {
-        // Fallback for generic errors
         toast.error(err.message, {
           position: "top-center",
           autoClose: 5000,
@@ -105,71 +103,104 @@ export default function Auth({
           transition: Flip,
         });
       }
+    } finally {
+      setIsLoading(false);
     }
-  };
-  // useEffect(() => {
-  //   const token = localStorage.getItem("token");
-  //   if (token) {
-  //     navigate("/"); // user is logged in → go to home
-  //   }
-  // }, [navigate]);
-
-  const validatePassword = (password: string) => {
-    return /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[^A-Za-z0-9]).{6,}$/.test(
-      password
-    )
-      ? null
-      : "Password must be at least 6 characters long, and include uppercase, lowercase, number, and special character.";
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-pink-200 via-pink-100 to-orange-200 px-4">
-      {isLoading ?? <Spinner size={64} thickness={6} speed="slow" />}
-      <div className="flex flex-col items-center text-center w-full max-w-md">
-        {/* Title */}
-        <motion.h1
-          initial={{ scale: 0.8, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ duration: 0.8 }}
-          className="text-5xl sm:text-6xl md:text-7xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-orange-400 drop-shadow-[0_5px_20px_rgba(255,105,180,0.6)]"
-          style={{ fontFamily: "'Comic Neue', cursive" }}
-        >
-          BondBox
-        </motion.h1>
+    <div className="relative min-h-screen flex items-center justify-center p-4 overflow-hidden bg-gradient-to-br from-pink-100 via-rose-50 to-orange-100">
+      {/* Ambient background glows */}
+      <div className="ambient-glow-1" />
+      <div className="ambient-glow-2" />
 
-        {/* Mode Toggle */}
-        <div className="flex gap-6 mt-6 sm:mt-10">
-          <motion.button
-            whileHover={{ scale: 1.1 }}
-            onClick={() => setMode("login")}
-            className={`px-6 py-3 rounded-2xl ${
-              mode === "login"
-                ? "bg-gradient-to-r from-pink-500 to-orange-500"
-                : "bg-gray-200 text-gray-700"
-            } text-white font-semibold shadow-lg`}
+      {/* Floating decorative elements */}
+      <motion.div
+        animate={{ y: [0, -12, 0], rotate: [0, 5, 0] }}
+        transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+        className="hidden md:flex absolute top-12 left-16 text-3xl select-none opacity-60"
+      >
+        🌸
+      </motion.div>
+      <motion.div
+        animate={{ y: [0, 14, 0], rotate: [0, -6, 0] }}
+        transition={{ duration: 7, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+        className="hidden md:flex absolute bottom-16 left-24 text-3xl select-none opacity-60"
+      >
+        💌
+      </motion.div>
+      <motion.div
+        animate={{ y: [0, -15, 0], rotate: [0, 8, 0] }}
+        transition={{ duration: 8, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
+        className="hidden md:flex absolute top-20 right-20 text-3xl select-none opacity-60"
+      >
+        ✨
+      </motion.div>
+      <motion.div
+        animate={{ y: [0, 10, 0], rotate: [0, -4, 0] }}
+        transition={{ duration: 6.5, repeat: Infinity, ease: "easeInOut", delay: 2 }}
+        className="hidden md:flex absolute bottom-12 right-24 text-3xl select-none opacity-60"
+      >
+        🥂
+      </motion.div>
+
+      {/* Glassmorphic Auth Card */}
+      <motion.div
+        initial={{ opacity: 0, y: 24, scale: 0.96 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+        className="relative z-10 w-full max-w-md glass-card rounded-3xl p-6 sm:p-10 shadow-2xl border border-white/80"
+      >
+        {/* Header section */}
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full glass-pill text-xs font-semibold text-pink-600 mb-3.5 tracking-wide">
+            <span>✨</span>
+            <span>A private sanctuary for two</span>
+          </div>
+
+          <h1
+            className="text-4xl sm:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-pink-500 via-rose-400 to-orange-400 drop-shadow-sm tracking-tight"
+            style={{ fontFamily: "var(--font-serif)" }}
           >
-            Login
-          </motion.button>
-          <motion.button
-            whileHover={{ scale: 1.1 }}
-            onClick={() => setMode("signup")}
-            className={`px-6 py-3 rounded-2xl ${
-              mode === "signup"
-                ? "bg-gradient-to-r from-orange-500 to-pink-500"
-                : "bg-gray-200 text-gray-700"
-            } text-white font-semibold shadow-lg`}
-          >
-            Signup
-          </motion.button>
+            BondBox
+          </h1>
+          <p className="text-gray-500 text-sm mt-2 font-normal">
+            Where your sweetest memories live forever
+          </p>
         </div>
 
-        {/* Form */}
+        {/* Mode Toggle Pills */}
+        <div className="p-1 rounded-2xl bg-pink-100/70 backdrop-blur-md flex gap-1 mb-6 border border-pink-200/50">
+          <button
+            type="button"
+            onClick={() => setMode("login")}
+            className={`flex-1 py-2.5 rounded-xl font-semibold text-sm transition-all duration-300 ${
+              mode === "login"
+                ? "bg-gradient-to-r from-pink-500 to-orange-400 text-white shadow-md shadow-pink-500/20 scale-[1.02]"
+                : "text-gray-600 hover:text-pink-600"
+            }`}
+          >
+            Login
+          </button>
+          <button
+            type="button"
+            onClick={() => setMode("signup")}
+            className={`flex-1 py-2.5 rounded-xl font-semibold text-sm transition-all duration-300 ${
+              mode === "signup"
+                ? "bg-gradient-to-r from-pink-500 to-orange-400 text-white shadow-md shadow-pink-500/20 scale-[1.02]"
+                : "text-gray-600 hover:text-pink-600"
+            }`}
+          >
+            Signup
+          </button>
+        </div>
 
+        {/* Input Form */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="mt-6 sm:mt-10 w-full px-4"
+          className="mt-6 w-full"
         >
           <div className="flex flex-col gap-4">
             <input
@@ -177,24 +208,65 @@ export default function Auth({
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Email"
               type="email"
-              className="p-3 rounded-xl border-2 border-pink-300 focus:outline-none focus:ring-2 focus:ring-pink-400 shadow-md"
+              required
+              className="w-full px-4 py-3 rounded-2xl glass-input text-gray-800 placeholder-gray-400 text-sm font-medium focus:outline-none"
             />
+
             <input
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Password"
               type="password"
-              className="p-3 rounded-xl border-2 border-orange-300 focus:outline-none focus:ring-2 focus:ring-orange-400 shadow-md"
+              required
+              className="w-full px-4 py-3 rounded-2xl glass-input text-gray-800 placeholder-gray-400 text-sm font-medium focus:outline-none"
             />
-            <button
+
+            <AnimatePresence>
+              {mode === "signup" && (
+                <motion.p
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="text-[11px] text-gray-500 px-1 leading-tight"
+                >
+                  Must be 6+ chars with uppercase, lowercase, number & special char.
+                </motion.p>
+              )}
+            </AnimatePresence>
+
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              type="button"
               onClick={handleAuth}
-              className="px-6 py-3 rounded-xl bg-gradient-to-r from-pink-500 to-orange-500 text-white font-bold shadow-lg hover:shadow-pink-500/40"
+              disabled={isLoading}
+              className="mt-1 w-full py-3.5 px-6 rounded-2xl bg-gradient-to-r from-pink-500 via-rose-500 to-orange-400 text-white font-bold text-sm shadow-lg shadow-pink-500/25 hover:shadow-pink-500/40 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-70"
             >
-              {mode === "login" ? "Login" : "Signup"}
-            </button>
+              {isLoading ? (
+                <Spinner size={20} thickness={2.5} speed="fast" />
+              ) : (
+                <>
+                  <span>{mode === "login" ? "Login" : "Signup"}</span>
+                  <span>✨</span>
+                </>
+              )}
+            </motion.button>
           </div>
         </motion.div>
-      </div>
+
+        {/* Footer Note */}
+        <div className="mt-6 pt-5 border-t border-pink-100 text-center">
+          <p className="text-xs text-gray-500">
+            {mode === "login" ? "Don't have a room yet?" : "Already have an account?"}{" "}
+            <span
+              onClick={() => setMode(mode === "login" ? "signup" : "login")}
+              className="font-bold text-pink-600 hover:text-pink-700 underline underline-offset-2 ml-1 cursor-pointer"
+            >
+              {mode === "login" ? "Create an account" : "Back to login"}
+            </span>
+          </p>
+        </div>
+      </motion.div>
     </div>
   );
 }
