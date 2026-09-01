@@ -50,9 +50,20 @@ export default function BuyMeCoffeeModal({ isOpen, onClose }: Props) {
   const [history, setHistory] = useState<PaymentHistory | null>(null);
 
   // Trusted configuration from environment, strictly validated (no localStorage tampering)
-  const upiId = (import.meta.env.VITE_UPI_ID || "yourname@upi").trim();
-  const upiName = (import.meta.env.VITE_UPI_NAME || DEFAULT_TRUSTED_UPI_NAME).trim();
-  const buyMeCoffeeUrl = getSafeBuyMeCoffeeUrl(import.meta.env.VITE_BUYMEACOFFEE_URL);
+  const upiId = (
+    import.meta.env.VITE_UPI_ID ||
+    import.meta.env.VITE_UPI_VPA ||
+    import.meta.env.VITE_UPI_ADDRESS ||
+    "yourname@upi"
+  ).trim();
+  const upiName = (
+    import.meta.env.VITE_UPI_NAME ||
+    import.meta.env.VITE_PAYEE_NAME ||
+    DEFAULT_TRUSTED_UPI_NAME
+  ).trim();
+  const buyMeCoffeeUrl = getSafeBuyMeCoffeeUrl(
+    import.meta.env.VITE_BUYMEACOFFEE_URL || import.meta.env.VITE_BMC_URL
+  );
 
   const amountValidation = validateDonationAmount(inrAmount);
   const numericInrAmount = amountValidation.sanitizedAmount;
