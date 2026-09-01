@@ -190,30 +190,29 @@ export default function Home() {
               whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.97 }}
               onClick={() => setMode(mode === "create" ? "" : "create")}
-              className={`flex-1 py-4 px-5 rounded-[26px] font-bold text-sm sm:text-base transition-all duration-300 flex items-center justify-center gap-2.5 shadow-lg cursor-pointer ${
-                mode === "create"
+              className={`flex-1 py-4 px-5 rounded-[26px] font-bold text-sm sm:text-base transition-all duration-300 flex items-center justify-center gap-2.5 shadow-lg cursor-pointer ${mode === "create"
                   ? "bg-gradient-to-r from-[#D66D7D] to-[#E07A8A] text-white shadow-[#D66D7D]/35 ring-4 ring-[#FCE7EB]"
                   : "glass-card text-[#2E2627] hover:text-[#D66D7D] hover:border-[#D66D7D]/50"
-              }`}
+                }`}
             >
               <span>🌸</span>
-              <span>Create Space</span>
+              <span>Create a Room</span>
             </motion.button>
 
             <motion.button
               whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.97 }}
               onClick={() => setMode(mode === "join" ? "" : "join")}
-              className={`flex-1 py-4 px-5 rounded-[26px] font-bold text-sm sm:text-base transition-all duration-300 flex items-center justify-center gap-2.5 shadow-lg cursor-pointer ${
-                mode === "join"
+              className={`flex-1 py-4 px-5 rounded-[26px] font-bold text-sm sm:text-base transition-all duration-300 flex items-center justify-center gap-2.5 shadow-lg cursor-pointer ${mode === "join"
                   ? "bg-gradient-to-r from-[#F7BA9E] to-[#E07A8A] text-white shadow-[#F7BA9E]/35 ring-4 ring-[#FDE2D0]"
                   : "glass-card text-[#2E2627] hover:text-[#C55869] hover:border-[#F7BA9E]/50"
-              }`}
+                }`}
             >
               <span>🗝️</span>
-              <span>Join with Key</span>
+              <span>Join a Room</span>
             </motion.button>
           </motion.div>
+
         )}
 
         {/* Form Container */}

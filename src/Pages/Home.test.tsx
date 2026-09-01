@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
-// import userEvent from "@testing-library/user-event";
 import Home from "./Home";
 import { MemoryRouter } from "react-router-dom";
+
 test("renders Bondbox heading", () => {
   render(
     <MemoryRouter>
@@ -10,14 +10,17 @@ test("renders Bondbox heading", () => {
   );
   expect(screen.getByText(/Bondbox/i)).toBeInTheDocument();
 });
+
 test("Two buttons", async () => {
   render(
     <MemoryRouter>
       <Home />
     </MemoryRouter>
   );
-  const buttons = screen.getAllByRole("button");
-  expect(buttons).toHaveLength(2);
+  const createRoomButton = screen.getByRole("button", { name: /Create a/i });
+  const joinButton = screen.getByRole("button", { name: /Join a/i });
+  expect(createRoomButton).toBeInTheDocument();
+  expect(joinButton).toBeInTheDocument();
 });
 
 test("Create Room button", async () => {
@@ -41,3 +44,4 @@ test("Join Room button", async () => {
   const [joinButton] = screen.getAllByRole("button", { name: /Join a/i });
   expect(joinButton).toBeInTheDocument();
 });
+

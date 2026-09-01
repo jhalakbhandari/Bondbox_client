@@ -114,8 +114,8 @@ export default function Auth({
       if (axios.isAxiosError(err)) {
         toast.error(
           err.response?.data?.message ||
-            err.response?.data?.errors?.[0]?.msg ||
-            "Authentication failed. Please check your details.",
+          err.response?.data?.errors?.[0]?.msg ||
+          "Authentication failed. Please check your details.",
           {
             position: "top-center",
             autoClose: 5000,
@@ -205,7 +205,7 @@ export default function Auth({
                 : "text-[#7A6B6D] hover:text-[#D66D7D]"
             }`}
           >
-            Sign In
+            Login
           </button>
           <button
             type="button"
@@ -216,7 +216,7 @@ export default function Auth({
                 : "text-[#7A6B6D] hover:text-[#D66D7D]"
             }`}
           >
-            Create Sanctuary
+            Signup
           </button>
         </div>
 
@@ -227,46 +227,43 @@ export default function Auth({
           transition={{ duration: 0.45 }}
           className="w-full"
         >
-          <div className="flex flex-col gap-3.5">
+          <div className="flex flex-col gap-3">
             {/* Email Input */}
-            <div>
-              <label className="block text-[11px] font-bold text-[#4A3E40] mb-1 ml-1">
-                Your Email Address
-              </label>
-              <input
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="love@ourworld.com"
-                type="email"
-                required
-                className="w-full px-4 py-3 rounded-2xl glass-input text-sm font-medium focus:outline-none placeholder:text-[#A89A9C]"
-              />
-            </div>
+            <label className="block text-[11px] font-bold text-[#4A3E40] -mb-1.5 ml-1 text-left">
+              Your Email Address
+            </label>
+            <input
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="Email"
+              type="email"
+              required
+              className="w-full px-4 py-3 rounded-2xl glass-input text-sm font-medium focus:outline-none placeholder:text-[#A89A9C]"
+            />
 
             {/* Password Input with Interactive Eye Toggle */}
-            <div>
-              <label className="block text-[11px] font-bold text-[#4A3E40] mb-1 ml-1">
-                Secret Password
-              </label>
-              <div className="relative flex items-center">
-                <input
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••••••"
-                  type={showPassword ? "text" : "password"}
-                  required
-                  className="w-full px-4 py-3 pr-12 rounded-2xl glass-input text-sm font-medium focus:outline-none placeholder:text-[#A89A9C]"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3.5 p-1 text-[#7A6B6D] hover:text-[#D66D7D] transition-colors cursor-pointer select-none text-base"
-                  title={showPassword ? "Hide password" : "Show password"}
-                >
-                  {showPassword ? "👁️" : "🙈"}
-                </button>
-              </div>
+            <label className="block text-[11px] font-bold text-[#4A3E40] -mb-1.5 ml-1 text-left">
+              Secret Password
+            </label>
+            <div className="relative flex items-center">
+              <input
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Password"
+                type={showPassword ? "text" : "password"}
+                required
+                className="w-full px-4 py-3 pr-12 rounded-2xl glass-input text-sm font-medium focus:outline-none placeholder:text-[#A89A9C]"
+              />
+              <span
+                role="presentation"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3.5 p-1 text-[#7A6B6D] hover:text-[#D66D7D] transition-colors cursor-pointer select-none text-base"
+                title={showPassword ? "Hide password" : "Show password"}
+              >
+                {showPassword ? "👁️" : "🙈"}
+              </span>
             </div>
+
 
             {/* Live Password Security Checklist for Signup */}
             <AnimatePresence>
@@ -304,6 +301,7 @@ export default function Auth({
                     <span className={`flex items-center gap-1 font-semibold ${hasLowercase ? "text-emerald-700" : "text-[#A89A9C]"}`}>
                       <span>{hasLowercase ? "✓" : "○"}</span> 1 lowercase (a-z)
                     </span>
+
                     <span className={`flex items-center gap-1 font-semibold ${hasNumber ? "text-emerald-700" : "text-[#A89A9C]"}`}>
                       <span>{hasNumber ? "✓" : "○"}</span> 1 number (0-9)
                     </span>
@@ -327,7 +325,7 @@ export default function Auth({
                 <Spinner size={20} thickness={2.5} speed="fast" />
               ) : (
                 <>
-                  <span>{mode === "login" ? "Enter Sanctuary" : "Create Our Sanctuary"}</span>
+                  <span>{mode === "login" ? "Login" : "Sign up"}</span>
                   <span>✨</span>
                 </>
               )}
@@ -335,20 +333,22 @@ export default function Auth({
           </div>
         </motion.div>
 
+
         {/* Footer Note */}
         <div className="mt-5 pt-3.5 border-t border-[#F9D2D9]/70 text-center">
           <p className="text-xs text-[#7A6B6D]">
             {mode === "login" ? "Don't have a sanctuary yet?" : "Already have your sanctuary key?"}{" "}
-            <button
-              type="button"
+            <span
+              role="link"
+              tabIndex={0}
               onClick={() => {
                 setMode(mode === "login" ? "signup" : "login");
                 setShowPassword(false);
               }}
-              className="font-bold text-[#D66D7D] hover:text-[#9E2A42] underline underline-offset-2 ml-1 cursor-pointer transition-colors"
+              className="font-bold text-[#D66D7D] hover:text-[#9E2A42] underline underline-offset-2 ml-1 cursor-pointer transition-colors inline-block"
             >
               {mode === "login" ? "Create an account" : "Sign in here"}
-            </button>
+            </span>
           </p>
         </div>
       </motion.div>
