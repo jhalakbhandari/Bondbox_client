@@ -95,7 +95,7 @@ export default function PostCard({ post, flip, onDelete }: Props) {
         className={`relative group ${
           isPolaroid
             ? `polaroid-card ${flip ? "sm:-rotate-[0.8deg]" : "sm:rotate-[0.8deg]"}`
-            : "glass-card rounded-3xl p-5 sm:p-6 shadow-xl border border-white/85"
+            : "glass-card rounded-[30px] p-5 sm:p-7 shadow-xl border border-white/90"
         } transition-all duration-300`}
       >
         {/* Polaroid Washi Tape Accent */}
@@ -112,7 +112,7 @@ export default function PostCard({ post, flip, onDelete }: Props) {
         )}
 
         {/* Delete Memory Button / Confirmation Overlay */}
-        <div className="absolute top-3 right-3 z-30">
+        <div className="absolute top-3.5 right-3.5 z-30">
           {!showDeleteConfirm ? (
             <button
               type="button"
@@ -120,7 +120,7 @@ export default function PostCard({ post, flip, onDelete }: Props) {
                 e.stopPropagation();
                 setShowDeleteConfirm(true);
               }}
-              className="w-7 h-7 rounded-full bg-white/70 hover:bg-rose-100 text-gray-400 hover:text-red-500 shadow-2xs flex items-center justify-center text-xs opacity-60 sm:opacity-0 group-hover:opacity-100 transition-all cursor-pointer"
+              className="w-7 h-7 rounded-full bg-white/80 hover:bg-[#FCE7EB] text-[#7A6B6D] hover:text-[#9E2A42] shadow-2xs flex items-center justify-center text-xs opacity-60 sm:opacity-0 group-hover:opacity-100 transition-all cursor-pointer border border-[#F9D2D9]/60"
               title="Delete this memory"
             >
               🗑️
@@ -130,14 +130,14 @@ export default function PostCard({ post, flip, onDelete }: Props) {
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               onClick={(e) => e.stopPropagation()}
-              className="glass-card px-3 py-1.5 rounded-2xl shadow-xl border border-rose-200 flex items-center gap-2 bg-white/95 text-xs font-semibold"
+              className="glass-card px-3 py-1.5 rounded-2xl shadow-xl border border-[#F9D2D9] flex items-center gap-2 bg-white/95 text-xs font-semibold"
             >
-              <span className="text-gray-700 text-[11px]">Delete?</span>
+              <span className="text-[#4A3E40] text-[11px]">Delete?</span>
               <button
                 type="button"
                 onClick={handleDelete}
                 disabled={isDeleting}
-                className="px-2 py-0.5 rounded-lg bg-red-500 hover:bg-red-600 text-white text-[10px] font-bold transition cursor-pointer"
+                className="px-2.5 py-0.5 rounded-lg bg-[#9E2A42] hover:bg-[#801F34] text-white text-[10px] font-bold transition cursor-pointer"
               >
                 {isDeleting ? "..." : "Yes"}
               </button>
@@ -147,7 +147,7 @@ export default function PostCard({ post, flip, onDelete }: Props) {
                   e.stopPropagation();
                   setShowDeleteConfirm(false);
                 }}
-                className="px-2 py-0.5 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-600 text-[10px] font-bold transition cursor-pointer"
+                className="px-2.5 py-0.5 rounded-lg bg-gray-100 hover:bg-gray-200 text-[#4A3E40] text-[10px] font-bold transition cursor-pointer"
               >
                 Cancel
               </button>
@@ -157,17 +157,17 @@ export default function PostCard({ post, flip, onDelete }: Props) {
 
         {/* Chapter / Session Tag if available */}
         {post.sessionId?.label && (
-          <div className="mb-2.5 flex items-center gap-1.5">
-            <span className="text-[10px] sm:text-[11px] font-extrabold text-pink-700 bg-pink-100/90 px-2.5 py-0.5 rounded-full inline-flex items-center gap-1 shadow-2xs">
+          <div className="mb-3 flex items-center gap-1.5">
+            <span className="text-[10px] sm:text-[11px] font-extrabold text-[#D66D7D] bg-[#FFF5F7] px-3 py-0.5 rounded-full inline-flex items-center gap-1 shadow-2xs border border-[#F9D2D9]">
               <span>🔖</span>
               <span className="truncate max-w-[180px] sm:max-w-[240px]">{post.sessionId.label}</span>
             </span>
           </div>
         )}
 
-        {/* Memory Photo with Robust Normalization, Shimmer, & Fullscreen Lightbox */}
+        {/* Memory Photo with Shimmer & Lightbox */}
         {post.photo && (
-          <div className="relative overflow-hidden rounded-2xl mb-3.5 shadow-sm">
+          <div className="relative overflow-hidden rounded-2xl mb-3.5 shadow-xs">
             <MemoryImage
               src={post.photo}
               alt={post.text || "BondBox memory photo"}
@@ -197,22 +197,22 @@ export default function PostCard({ post, flip, onDelete }: Props) {
 
         {/* Whimsical Audio / Voice Whisper Player */}
         {normalizedAudio && (
-          <div className="p-3.5 sm:p-4 rounded-2xl bg-gradient-to-r from-pink-50 via-rose-50 to-amber-50 border border-pink-200/80 mb-3.5 shadow-xs flex flex-col gap-2">
+          <div className="p-3.5 sm:p-4 rounded-2xl bg-gradient-to-r from-[#FFF5F7] via-[#FAF0E6] to-[#FDE2D0]/60 border border-[#F9D2D9] mb-3.5 shadow-xs flex flex-col gap-2">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2.5">
                 <button
                   type="button"
                   onClick={toggleAudio}
-                  className="w-9 h-9 rounded-full bg-gradient-to-tr from-pink-500 to-rose-400 text-white flex items-center justify-center shadow-md hover:scale-105 active:scale-95 transition cursor-pointer text-xs"
+                  className="w-9 h-9 rounded-full bg-gradient-to-tr from-[#D66D7D] to-[#F7BA9E] text-white flex items-center justify-center shadow-md hover:scale-105 active:scale-95 transition cursor-pointer text-xs"
                   title={isPlayingAudio ? "Pause Whisper" : "Play Whisper"}
                 >
                   {isPlayingAudio ? "⏸" : "▶"}
                 </button>
                 <div>
-                  <span className="text-xs font-bold text-pink-700 block leading-tight">
+                  <span className="text-xs font-bold text-[#D66D7D] block leading-tight">
                     Voice Whisper
                   </span>
-                  <span className="text-[10px] text-pink-400 font-mono">
+                  <span className="text-[10px] text-[#A89A9C] font-mono">
                     {isPlayingAudio ? "Whispering love..." : "Audio Memory"}
                   </span>
                 </div>
@@ -221,27 +221,27 @@ export default function PostCard({ post, flip, onDelete }: Props) {
               {/* Animated Soundwave Equalizer */}
               <div className="flex items-center gap-1 h-6 px-2">
                 <div
-                  className={`w-1 bg-pink-400 rounded-full transition-all ${
+                  className={`w-1 bg-[#D66D7D] rounded-full transition-all ${
                     isPlayingAudio ? "animate-wave-1" : "h-1.5"
                   }`}
                 />
                 <div
-                  className={`w-1 bg-pink-500 rounded-full transition-all ${
+                  className={`w-1 bg-[#E07A8A] rounded-full transition-all ${
                     isPlayingAudio ? "animate-wave-2" : "h-3"
                   }`}
                 />
                 <div
-                  className={`w-1 bg-rose-400 rounded-full transition-all ${
+                  className={`w-1 bg-[#F7BA9E] rounded-full transition-all ${
                     isPlayingAudio ? "animate-wave-3" : "h-2"
                   }`}
                 />
                 <div
-                  className={`w-1 bg-orange-400 rounded-full transition-all ${
+                  className={`w-1 bg-amber-400 rounded-full transition-all ${
                     isPlayingAudio ? "animate-wave-4" : "h-3.5"
                   }`}
                 />
                 <div
-                  className={`w-1 bg-pink-400 rounded-full transition-all ${
+                  className={`w-1 bg-[#D66D7D] rounded-full transition-all ${
                     isPlayingAudio ? "animate-wave-5" : "h-1.5"
                   }`}
                 />
@@ -255,7 +255,7 @@ export default function PostCard({ post, flip, onDelete }: Props) {
               onPause={() => setIsPlayingAudio(false)}
               onEnded={() => setIsPlayingAudio(false)}
               controls
-              className="w-full h-8 accent-pink-500 opacity-90 mt-1"
+              className="w-full h-8 accent-[#D66D7D] opacity-90 mt-1"
             />
           </div>
         )}
@@ -263,7 +263,7 @@ export default function PostCard({ post, flip, onDelete }: Props) {
         {/* Memory Text / Handwritten Note */}
         {post.text && (
           <p
-            className={`text-gray-800 leading-relaxed ${
+            className={`text-[#2E2627] leading-relaxed ${
               isPolaroid
                 ? "text-xl sm:text-2xl font-medium pt-1 px-1 text-center sm:text-left"
                 : "text-sm sm:text-base font-medium"
@@ -279,13 +279,13 @@ export default function PostCard({ post, flip, onDelete }: Props) {
         )}
 
         {/* Footer: Date Stamp & Love Reaction */}
-        <div className="flex items-center justify-between mt-3.5 pt-2.5 border-t border-pink-100/70 text-xs">
-          <div className="flex items-center gap-1.5 text-gray-400">
+        <div className="flex items-center justify-between mt-3.5 pt-2.5 border-t border-[#F9D2D9]/60 text-xs">
+          <div className="flex items-center gap-1.5 text-[#7A6B6D]">
             <span className="text-xs">📅</span>
-            <span className="font-mono text-[11px] text-gray-500 font-medium tracking-tight">
+            <span className="font-mono text-[11px] text-[#4A3E40] font-medium tracking-tight">
               {formatMemoryDate(post.createdAt)}
             </span>
-            <span className="text-[10px] text-gray-400 font-mono hidden sm:inline">
+            <span className="text-[10px] text-[#A89A9C] font-mono hidden sm:inline">
               • {formatMemoryTime(post.createdAt)}
             </span>
           </div>
@@ -295,7 +295,7 @@ export default function PostCard({ post, flip, onDelete }: Props) {
             <button
               type="button"
               onClick={handleHeartClick}
-              className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-pink-50 hover:bg-pink-100 text-pink-600 font-medium transition-colors cursor-pointer shadow-xs border border-pink-100 select-none active:scale-95"
+              className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FFF5F7] hover:bg-[#FCE7EB] text-[#D66D7D] font-bold transition-colors cursor-pointer shadow-2xs border border-[#F9D2D9] select-none active:scale-95"
               title="Send Love (Double-tap memory)"
             >
               <motion.span whileTap={{ scale: 1.4 }} className="text-xs">
@@ -327,3 +327,4 @@ export default function PostCard({ post, flip, onDelete }: Props) {
     </motion.div>
   );
 }
+

@@ -35,15 +35,12 @@ export default function Spinner({
   label = "Loading",
   className = "",
 }: SpinnerProps) {
-  // SVG viewBox will be 0..size, but stroke is centered on radius →
-  // use radius so the stroke doesn't get clipped.
   const r = (size - thickness) / 2;
   const center = size / 2;
 
-  // Dash settings for that classic spinner gap
   const circumference = 2 * Math.PI * r;
-  const dash = 0.75 * circumference; // 75% arc visible
-  const gap = circumference - dash; // 25% gap hidden
+  const dash = 0.75 * circumference;
+  const gap = circumference - dash;
 
   return (
     <span
@@ -68,11 +65,8 @@ export default function Spinner({
             x2="100%"
             y2="100%"
           >
-            {/* Tailwind colors via currentColor are tough in SVG gradients, so we hard-code gradient stops matching Tailwind palette */}
-            <stop offset="0%" stopColor="#ec4899" />
-            {/* pink-500 */}
-            <stop offset="100%" stopColor="#fb923c" />
-            {/* orange-400 */}
+            <stop offset="0%" stopColor="#D66D7D" />
+            <stop offset="100%" stopColor="#F7BA9E" />
           </linearGradient>
         </defs>
 
@@ -83,7 +77,7 @@ export default function Spinner({
           r={r}
           strokeWidth={thickness}
           className="opacity-20"
-          stroke="#ec4899" // base pink for track
+          stroke="#D66D7D"
           fill="none"
         />
 
@@ -105,3 +99,4 @@ export default function Spinner({
     </span>
   );
 }
+

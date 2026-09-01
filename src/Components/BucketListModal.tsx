@@ -97,19 +97,19 @@ export default function BucketListModal({
   const progressPercent = items.length > 0 ? Math.round((completedCount / items.length) * 100) : 0;
 
   return (
-    <div className="fixed inset-0 bg-black/40 backdrop-blur-xs flex justify-center items-center z-50 p-3 sm:p-4">
+    <div className="fixed inset-0 bg-black/45 backdrop-blur-xs flex justify-center items-center z-50 p-3 sm:p-4 overflow-y-auto">
       <motion.div
         initial={{ opacity: 0, scale: 0.94, y: 15 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.94, y: 15 }}
-        className="glass-card rounded-3xl w-full max-w-md p-5 sm:p-7 shadow-2xl border border-white/90 flex flex-col max-h-[85vh]"
+        className="glass-card rounded-[32px] w-full max-w-md p-6 sm:p-8 shadow-2xl border border-white/95 flex flex-col max-h-[85vh] my-auto"
       >
         {/* Header */}
-        <div className="flex items-center justify-between pb-3 border-b border-pink-100/80 mb-4">
+        <div className="flex items-center justify-between pb-3 border-b border-[#F9D2D9] mb-4">
           <div className="flex items-center gap-2">
             <span className="text-2xl">✨</span>
             <h2
-              className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-pink-600 to-orange-400"
+              className="text-2xl font-bold text-[#2E2627]"
               style={{ fontFamily: "var(--font-serif)" }}
             >
               Our Bucket List
@@ -117,7 +117,7 @@ export default function BucketListModal({
           </div>
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-full bg-pink-100/70 hover:bg-pink-200 text-pink-700 flex items-center justify-center text-sm font-bold transition-colors cursor-pointer"
+            className="w-8 h-8 rounded-full bg-[#FFF5F7] hover:bg-[#FCE7EB] text-[#D66D7D] flex items-center justify-center text-sm font-bold transition-colors cursor-pointer border border-[#F9D2D9]"
           >
             ✕
           </button>
@@ -125,24 +125,24 @@ export default function BucketListModal({
 
         {/* Progress bar */}
         {items.length > 0 && (
-          <div className="mb-4 p-3 rounded-2xl bg-gradient-to-r from-pink-50 to-orange-50 border border-pink-100">
-            <div className="flex justify-between text-xs font-semibold text-gray-600 mb-1.5">
+          <div className="mb-4 p-3.5 rounded-2xl bg-gradient-to-r from-[#FFF5F7] to-[#FAF0E6] border border-[#F9D2D9]">
+            <div className="flex justify-between text-xs font-bold text-[#4A3E40] mb-1.5">
               <span>Dreams Fulfilled Together</span>
-              <span className="text-pink-600 font-bold">{completedCount} of {items.length} ({progressPercent}%)</span>
+              <span className="text-[#D66D7D] font-extrabold">{completedCount} of {items.length} ({progressPercent}%)</span>
             </div>
-            <div className="w-full h-2 bg-pink-200/50 rounded-full overflow-hidden">
+            <div className="w-full h-2 bg-[#F3E6E8] rounded-full overflow-hidden">
               <motion.div
                 initial={{ width: 0 }}
                 animate={{ width: `${progressPercent}%` }}
                 transition={{ duration: 0.8, ease: "easeOut" }}
-                className="h-full bg-gradient-to-r from-pink-500 to-orange-400 rounded-full"
+                className="h-full bg-gradient-to-r from-[#D66D7D] via-[#E07A8A] to-[#F7BA9E] rounded-full"
               />
             </div>
           </div>
         )}
 
         {/* Input + Add button */}
-        <div className="flex flex-col gap-2 mb-3.5">
+        <div className="flex flex-col gap-2.5 mb-4">
           <div className="flex gap-2">
             <input
               type="text"
@@ -150,21 +150,22 @@ export default function BucketListModal({
               onChange={(e) => setNewItem(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && addItem()}
               placeholder="Add a dream to fulfill together..."
-              className="flex-1 px-3.5 py-2.5 rounded-2xl glass-input text-gray-800 placeholder-gray-400 text-xs sm:text-sm font-medium focus:outline-none"
+              className="flex-1 px-4 py-2.5 rounded-2xl glass-input text-xs sm:text-sm font-medium focus:outline-none placeholder:text-[#A89A9C]"
             />
             <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.97 }}
               onClick={addItem}
-              className="px-4 py-2.5 bg-gradient-to-r from-pink-500 to-orange-400 text-white rounded-2xl font-bold shadow-md hover:shadow-pink-500/30 transition-all cursor-pointer text-xs sm:text-sm whitespace-nowrap active:scale-95"
+              className="px-4 py-2.5 bg-gradient-to-r from-[#D66D7D] to-[#F7BA9E] text-white rounded-2xl font-bold shadow-md shadow-[#D66D7D]/25 hover:shadow-[#D66D7D]/40 transition-all cursor-pointer text-xs sm:text-sm whitespace-nowrap active:scale-95 flex items-center gap-1"
             >
-              ➕ Add
+              <span>➕</span>
+              <span>Add</span>
             </motion.button>
           </div>
 
           {/* Quick Idea Chips */}
           <div className="flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar text-[11px]">
-            <span className="text-gray-400 font-medium whitespace-nowrap">💡 Ideas:</span>
+            <span className="text-[#A89A9C] font-semibold whitespace-nowrap">💡 Ideas:</span>
             {[
               "✈️ Paris trip",
               "🍕 Candlelight dinner",
@@ -176,7 +177,7 @@ export default function BucketListModal({
                 key={idea}
                 type="button"
                 onClick={() => setNewItem(idea)}
-                className="px-2.5 py-0.5 rounded-full bg-pink-100/70 hover:bg-pink-200 text-pink-700 font-semibold whitespace-nowrap transition-colors cursor-pointer border border-pink-200/60 shadow-2xs active:scale-95"
+                className="px-2.5 py-0.5 rounded-full bg-[#FFF5F7] hover:bg-[#FCE7EB] text-[#D66D7D] font-bold whitespace-nowrap transition-colors cursor-pointer border border-[#F9D2D9] active:scale-95"
               >
                 {idea}
               </button>
@@ -191,9 +192,9 @@ export default function BucketListModal({
               <Spinner size={28} thickness={3} speed="normal" />
             </div>
           ) : items.length === 0 ? (
-            <div className="text-center py-8 px-4 text-gray-400 text-xs">
+            <div className="text-center py-8 px-4 text-[#A89A9C] text-xs">
               <p className="text-3xl mb-2">🎈</p>
-              <p className="font-semibold text-gray-600">No dreams listed yet</p>
+              <p className="font-bold text-[#4A3E40]">No dreams listed yet</p>
               <p className="mt-1">Add trips, date nights, or goals you want to experience together!</p>
             </div>
           ) : (
@@ -204,10 +205,10 @@ export default function BucketListModal({
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, x: -20 }}
-                  className={`flex items-center justify-between px-3.5 py-2.5 rounded-2xl border transition-all ${
+                  className={`flex items-center justify-between px-4 py-2.5 rounded-2xl border transition-all ${
                     i.completed
-                      ? "bg-pink-50/50 border-pink-100 opacity-70"
-                      : "bg-white/85 border-pink-100 shadow-xs hover:border-pink-200"
+                      ? "bg-[#FAF6F0]/70 border-[#F9D2D9]/60 opacity-60"
+                      : "bg-white/95 border-[#F9D2D9] shadow-2xs hover:border-[#D66D7D]"
                   }`}
                 >
                   <label className="flex items-center gap-3 cursor-pointer flex-1 select-none">
@@ -215,13 +216,13 @@ export default function BucketListModal({
                       type="checkbox"
                       checked={i.completed}
                       onChange={() => toggleComplete(i._id, i.completed)}
-                      className="w-4 h-4 text-pink-500 rounded border-pink-300 focus:ring-pink-400 accent-pink-500 cursor-pointer"
+                      className="w-4 h-4 text-[#D66D7D] rounded border-[#F9D2D9] focus:ring-[#D66D7D] accent-[#D66D7D] cursor-pointer"
                     />
                     <span
-                      className={`text-xs sm:text-sm ${
+                      className={`text-xs sm:text-sm font-medium ${
                         i.completed
-                          ? "line-through text-gray-400 font-normal"
-                          : "text-gray-800 font-medium"
+                          ? "line-through text-[#A89A9C]"
+                          : "text-[#2E2627]"
                       }`}
                     >
                       {i.item}
@@ -229,7 +230,7 @@ export default function BucketListModal({
                   </label>
                   <button
                     onClick={() => deleteItem(i._id)}
-                    className="text-gray-300 hover:text-red-500 text-xs p-1 transition-colors cursor-pointer"
+                    className="text-[#A89A9C] hover:text-[#9E2A42] text-xs p-1 transition-colors cursor-pointer"
                     title="Delete item"
                   >
                     ✕
@@ -241,10 +242,10 @@ export default function BucketListModal({
         </div>
 
         {/* Footer */}
-        <div className="mt-4 pt-3 border-t border-pink-100 flex justify-end">
+        <div className="mt-4 pt-3 border-t border-[#F9D2D9]/70 flex justify-end">
           <button
             onClick={onClose}
-            className="px-4 py-2 rounded-xl text-xs font-semibold text-gray-500 hover:bg-gray-100 transition-colors cursor-pointer"
+            className="px-4 py-2 rounded-xl text-xs font-bold text-[#7A6B6D] hover:bg-[#FFF5F7] transition-colors cursor-pointer"
           >
             Done
           </button>
@@ -253,3 +254,4 @@ export default function BucketListModal({
     </div>
   );
 }
+

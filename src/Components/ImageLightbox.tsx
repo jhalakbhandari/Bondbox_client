@@ -59,7 +59,7 @@ export default function ImageLightbox({
               <div className="flex items-center gap-2">
                 <span className="text-xl">📸</span>
                 <div className="flex flex-col text-left">
-                  <span className="text-xs font-bold text-pink-200">Memory Snapshot</span>
+                  <span className="text-xs font-bold text-[#F9D2D9]">Memory Snapshot</span>
                   {date && (
                     <span className="text-[10px] text-gray-300 font-mono">
                       {formatMemoryDate(date)} • {formatMemoryTime(date)}
@@ -102,7 +102,7 @@ export default function ImageLightbox({
 
             {/* Caption & Romantic Footer */}
             {caption && (
-              <div className="mt-3.5 px-6 py-2.5 rounded-2xl bg-white/95 text-gray-800 text-center shadow-xl border border-pink-100 max-w-xl backdrop-blur-md">
+              <div className="mt-3.5 px-6 py-2.5 rounded-2xl bg-white/95 text-[#2E2627] text-center shadow-xl border border-[#F9D2D9] max-w-xl backdrop-blur-md">
                 <p
                   className="text-lg sm:text-2xl font-medium"
                   style={{ fontFamily: "var(--font-handwriting), cursive" }}
@@ -117,3 +117,4 @@ export default function ImageLightbox({
     </AnimatePresence>
   );
 }
+

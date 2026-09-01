@@ -53,7 +53,7 @@ export default function DownloadPDFButton({ roomId }: { roomId: string }) {
     <button
       onClick={downloadPDF}
       disabled={isLoading}
-      className="w-full text-left px-3 py-2 rounded-xl text-gray-700 hover:bg-pink-100/70 transition-colors flex items-center justify-between cursor-pointer disabled:opacity-60"
+      className="w-full text-left px-3.5 py-2.5 rounded-xl text-[#4A3E40] hover:bg-[#FFF5F7] hover:text-[#D66D7D] font-medium transition-colors flex items-center justify-between cursor-pointer disabled:opacity-60 text-xs"
     >
       <div className="flex items-center gap-2">
         <span>📄</span>
@@ -63,3 +63,4 @@ export default function DownloadPDFButton({ roomId }: { roomId: string }) {
     </button>
   );
 }
+

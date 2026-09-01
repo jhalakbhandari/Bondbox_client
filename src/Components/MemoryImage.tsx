@@ -51,14 +51,14 @@ export default function MemoryImage({
   return (
     <>
       <div
-        className={`relative overflow-hidden bg-gradient-to-br from-pink-50 via-rose-50 to-amber-50 ${containerClassName}`}
+        className={`relative overflow-hidden bg-gradient-to-br from-[#FFF5F7] via-[#FAF0E6] to-[#FDE2D0]/40 ${containerClassName}`}
         onClick={handleImageClick}
       >
         {/* Shimmer / Skeleton Loader */}
         {isLoading && !hasError && (
-          <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-gradient-to-r from-pink-100/70 via-rose-100/90 to-pink-100/70 animate-pulse min-h-[200px]">
+          <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-gradient-to-r from-[#FCE7EB]/80 via-[#F9D2D9]/90 to-[#FCE7EB]/80 animate-pulse min-h-[200px]">
             <span className="text-2xl mb-1 animate-bounce">🌸</span>
-            <span className="text-[11px] font-bold text-pink-500 tracking-wider">
+            <span className="text-[11px] font-bold text-[#D66D7D] tracking-wider">
               Developing photo...
             </span>
           </div>
@@ -66,17 +66,17 @@ export default function MemoryImage({
 
         {/* Error Fallback State */}
         {hasError ? (
-          <div className="min-h-[180px] p-6 flex flex-col items-center justify-center text-center bg-pink-50/80 rounded-2xl border border-dashed border-pink-200">
+          <div className="min-h-[180px] p-6 flex flex-col items-center justify-center text-center bg-[#FFF5F7] rounded-2xl border border-dashed border-[#F9D2D9]">
             <span className="text-3xl mb-1">📷</span>
-            <p className="text-xs font-bold text-pink-700">Memory Photo Preview</p>
-            <p className="text-[10px] text-gray-500 mt-0.5 max-w-[200px]">
+            <p className="text-xs font-bold text-[#D66D7D]">Memory Photo Preview</p>
+            <p className="text-[10px] text-[#7A6B6D] mt-0.5 max-w-[200px]">
               Tap to retry or view original photo
             </p>
             <div className="mt-3 flex gap-2">
               <button
                 type="button"
                 onClick={handleRetry}
-                className="px-3 py-1 rounded-full bg-pink-500 hover:bg-pink-600 text-white text-[11px] font-bold shadow-xs cursor-pointer transition"
+                className="px-3.5 py-1 rounded-full bg-[#D66D7D] hover:bg-[#C55869] text-white text-[11px] font-bold shadow-xs cursor-pointer transition"
               >
                 ↻ Retry
               </button>
@@ -85,7 +85,7 @@ export default function MemoryImage({
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={(e) => e.stopPropagation()}
-                className="px-3 py-1 rounded-full bg-white text-pink-600 border border-pink-200 text-[11px] font-bold shadow-xs cursor-pointer hover:bg-pink-50 transition"
+                className="px-3.5 py-1 rounded-full bg-white text-[#D66D7D] border border-[#F9D2D9] text-[11px] font-bold shadow-xs cursor-pointer hover:bg-[#FFF5F7] transition"
               >
                 Open ↗
               </a>
@@ -115,8 +115,8 @@ export default function MemoryImage({
 
         {/* Lightbox Trigger Hint on Hover (Desktop) */}
         {!isLoading && !hasError && allowLightbox && (
-          <div className="hidden sm:flex absolute bottom-2 right-2 px-2 py-1 rounded-full bg-black/40 text-white text-[10px] font-semibold backdrop-blur-xs opacity-0 hover:opacity-100 transition-opacity pointer-events-none items-center gap-1">
-            <span>🔍 Tap to view</span>
+          <div className="hidden sm:flex absolute bottom-2 right-2 px-2.5 py-1 rounded-full bg-black/40 text-white text-[10px] font-bold backdrop-blur-xs opacity-0 hover:opacity-100 transition-opacity pointer-events-none items-center gap-1 shadow-md">
+            <span>🔍 Tap to expand</span>
           </div>
         )}
       </div>
@@ -135,3 +135,4 @@ export default function MemoryImage({
     </>
   );
 }
+

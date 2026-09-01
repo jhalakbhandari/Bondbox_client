@@ -9,6 +9,8 @@ import { useEffect, useState } from "react";
 // import Home from "./src/pages/Home";
 // import Timeline from "./pages/Timeline";
 
+import Spinner from "./Components/Spinner";
+
 // App.tsx
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -24,9 +26,19 @@ function App() {
     setLoading(false);
   }, []);
 
-  if (loading) return <p className="text-center mt-20">Loading...</p>;
+  if (loading) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-[#FAF6F0] gap-3">
+        <Spinner size={36} thickness={3.5} speed="normal" />
+        <span className="text-xs font-semibold text-[#7A6B6D] tracking-wide">
+          Entering your sanctuary...
+        </span>
+      </div>
+    );
+  }
 
   return (
+
     <BrowserRouter>
       <Routes>
         <Route
