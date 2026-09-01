@@ -692,6 +692,15 @@ export default function Timeline() {
                   >
                     <span>🚪</span> Sign Out
                   </button>
+
+                  <div className="pt-2.5 mt-2 border-t border-[#F9D2D9]/70 text-center">
+                    <p className="text-[10px] text-[#7A6B6D] font-medium flex items-center justify-center gap-1">
+                      <span>Created with</span>
+                      <span className="text-[#D66D7D] animate-pulse">❤️</span>
+                      <span>by</span>
+                      <span className="font-bold text-[#2E2627]">Jhalak Bhandari</span>
+                    </p>
+                  </div>
                 </motion.div>
               )}
             </AnimatePresence>

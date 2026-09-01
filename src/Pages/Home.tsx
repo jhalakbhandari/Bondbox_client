@@ -375,6 +375,16 @@ export default function Home() {
           />
         )}
 
+        {/* Creator Attribution Footer */}
+        <footer className="mt-8 text-center text-xs text-[#7A6B6D]">
+          <p className="flex items-center justify-center gap-1.5 font-medium">
+            <span>Crafted with</span>
+            <span className="text-[#D66D7D] animate-pulse">❤️</span>
+            <span>by</span>
+            <span className="font-bold text-[#2E2627]">Jhalak Bhandari</span>
+          </p>
+        </footer>
+
         {/* Whimsical Ambient Music Box Player */}
         <WhimsicalMusicPlayer />
       </div>
