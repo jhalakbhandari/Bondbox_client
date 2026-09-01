@@ -7,20 +7,35 @@
 export function normalizeMediaUrl(url?: string | null): string {
   if (!url || typeof url !== "string") return "";
 
-  const trimmed = url.trim();
-  if (!trimmed) return "";
+  let cleanUrl = url.trim();
+  if (!cleanUrl) return "";
 
   // Handle blob and data URLs directly
-  if (trimmed.startsWith("blob:") || trimmed.startsWith("data:")) {
-    return trimmed;
+  if (cleanUrl.startsWith("blob:") || cleanUrl.startsWith("data:")) {
+    return cleanUrl;
   }
 
   // Replace Windows backslashes with forward slashes
-  let cleanUrl = trimmed.replace(/\\/g, "/");
+  cleanUrl = cleanUrl.replace(/\\/g, "/");
 
-  // Upgrade insecure http:// to https:// for Cloudinary or external secure CDN assets to avoid mixed content on mobile
+  // Upgrade insecure http:// to https:// for Cloudinary or external secure CDN assets
   if (cleanUrl.startsWith("http://res.cloudinary.com/")) {
     cleanUrl = cleanUrl.replace("http://res.cloudinary.com/", "https://res.cloudinary.com/");
+  }
+
+  // Clean any accidental whitespace in Cloudinary cloud name
+  if (cleanUrl.includes("res.cloudinary.com/%20")) {
+    cleanUrl = cleanUrl.replace("res.cloudinary.com/%20", "res.cloudinary.com/");
+  }
+
+  // Handle Cloudinary dynamic format delivery & iPhone HEIC/HEIF auto-conversion:
+  // Browsers (Chrome/Edge/Firefox) cannot display raw HEIC/HEIF files in <img>.
+  // Adding f_auto,q_auto and converting .heic/.heif to .jpg enables Cloudinary on-the-fly rendering.
+  if (cleanUrl.includes("res.cloudinary.com") && cleanUrl.includes("/image/upload/")) {
+    if (!cleanUrl.includes("/f_auto") && !cleanUrl.includes("/f_")) {
+      cleanUrl = cleanUrl.replace("/image/upload/", "/image/upload/f_auto,q_auto/");
+    }
+    cleanUrl = cleanUrl.replace(/\.(heic|heif|HEIC|HEIF)(\?.*)?$/i, ".jpg$2");
   }
 
   // If already absolute URL (http/https)
@@ -38,6 +53,7 @@ export function normalizeMediaUrl(url?: string | null): string {
 
   return `/${relativePath}`;
 }
+
 
 export function formatMemoryDate(dateString?: string): string {
   if (!dateString) return "";
