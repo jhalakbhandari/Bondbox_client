@@ -724,8 +724,9 @@ export default function Timeline() {
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="relative z-30 w-full max-w-2xl glass-card rounded-[32px] p-5 sm:p-7 shadow-xl border border-white/90 mb-8"
+        className="relative z-30 w-full max-w-2xl glass-card rounded-[32px] p-4 sm:p-7 shadow-xl border border-white/90 mb-8"
       >
+
         <div className="flex items-center justify-between mb-3 px-1">
           <span className="text-xs sm:text-sm font-bold text-[#2E2627] tracking-wide flex items-center gap-2">
             <span>📸</span>
@@ -837,8 +838,8 @@ export default function Timeline() {
         )}
 
         {/* Action Toolbar */}
-        <div className="flex items-center justify-between gap-2 mt-4 pt-3.5 border-t border-[#F9D2D9]/70">
-          <div className="flex items-center gap-2">
+        <div className="flex items-center justify-between gap-1.5 sm:gap-2 mt-4 pt-3.5 border-t border-[#F9D2D9]/70">
+          <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
             {!isRecording && !media && (
               <>
                 <input
@@ -857,19 +858,19 @@ export default function Timeline() {
                 />
                 <label
                   htmlFor="mediaUpload"
-                  className="px-4 py-2 rounded-2xl glass-pill text-xs font-bold text-[#D66D7D] hover:border-[#D66D7D]/40 transition-colors flex items-center gap-1.5 cursor-pointer shadow-xs active:scale-95"
+                  className="px-2.5 sm:px-4 py-2 rounded-2xl glass-pill text-xs font-bold text-[#D66D7D] hover:border-[#D66D7D]/40 transition-colors flex items-center gap-1 sm:gap-1.5 cursor-pointer shadow-xs active:scale-95 whitespace-nowrap"
                 >
                   <span>📷</span>
-                  <span className="inline">Add Media</span>
+                  <span>Media</span>
                 </label>
 
                 <button
                   type="button"
                   onClick={startRecording}
-                  className="px-4 py-2 rounded-2xl glass-pill text-xs font-bold text-[#C55869] hover:border-[#C55869]/40 transition-colors flex items-center gap-1.5 cursor-pointer shadow-xs active:scale-95"
+                  className="px-2.5 sm:px-4 py-2 rounded-2xl glass-pill text-xs font-bold text-[#C55869] hover:border-[#C55869]/40 transition-colors flex items-center gap-1 sm:gap-1.5 cursor-pointer shadow-xs active:scale-95 whitespace-nowrap"
                 >
                   <span>🎙️</span>
-                  <span className="inline">Whisper</span>
+                  <span>Whisper</span>
                 </button>
               </>
             )}
@@ -880,18 +881,20 @@ export default function Timeline() {
             whileTap={{ scale: 0.97 }}
             onClick={addPost}
             disabled={isPosting}
-            className="py-2.5 px-6 rounded-2xl bg-gradient-to-r from-[#D66D7D] via-[#E07A8A] to-[#F7BA9E] text-white font-bold text-xs sm:text-sm shadow-md shadow-[#D66D7D]/25 hover:shadow-[#D66D7D]/40 transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-60"
+            className="py-2 px-3 sm:px-5 rounded-2xl bg-gradient-to-r from-[#D66D7D] via-[#E07A8A] to-[#F7BA9E] text-white font-bold text-xs sm:text-sm shadow-md shadow-[#D66D7D]/25 hover:shadow-[#D66D7D]/40 transition-all flex items-center gap-1 sm:gap-1.5 cursor-pointer disabled:opacity-60 whitespace-nowrap flex-shrink-0"
           >
             {isPosting ? (
-              <Spinner size={18} thickness={2.5} speed="fast" />
+              <Spinner size={16} thickness={2.5} speed="fast" />
             ) : (
               <>
-                <span>Capture Memory</span>
+                <span>Capture</span>
+                <span className="hidden sm:inline">Memory</span>
                 <span>✨</span>
               </>
             )}
           </motion.button>
         </div>
+
       </motion.div>
 
       {/* View Mode: Scrapbook Album OR Stream Feed */}
