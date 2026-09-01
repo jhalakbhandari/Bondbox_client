@@ -6,8 +6,10 @@ import type { Room } from "../types";
 import { Flip, toast } from "react-toastify";
 import Spinner from "../Components/Spinner";
 import GoldenTicketModal from "../Components/GoldenTicketModal";
+import WhimsicalMusicPlayer from "../Components/WhimsicalMusicPlayer";
 
 export default function Home() {
+
   const [mode, setMode] = useState<"" | "create" | "join">("");
   const [name, setName] = useState("");
   const [code, setCode] = useState("");
@@ -373,8 +375,12 @@ export default function Home() {
             onClose={() => setShowTicketModal(false)}
           />
         )}
+
+        {/* Whimsical Ambient Music Box Player */}
+        <WhimsicalMusicPlayer />
       </div>
     </div>
   );
 }
+
 

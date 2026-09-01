@@ -15,8 +15,10 @@ import GuidedTourModal from "../Components/GuidedTourModal";
 import BuyMeCoffeeModal from "../Components/BuyMeCoffeeModal";
 import InfiniteScroll from "react-infinite-scroll-component";
 import Spinner from "../Components/Spinner";
+import WhimsicalMusicPlayer from "../Components/WhimsicalMusicPlayer";
 
 export default function Timeline() {
+
   const { roomId } = useParams();
   const [room, setRoom] = useState<Room | null>(null);
   const [posts, setPosts] = useState<Post[]>([]);
@@ -571,11 +573,10 @@ export default function Timeline() {
                           localStorage.setItem("timeline_view", "stream");
                           setShowDropdown(false);
                         }}
-                        className={`flex-1 py-1.5 px-2 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
-                          viewMode === "stream"
-                            ? "bg-gradient-to-r from-[#D66D7D] to-[#E07A8A] text-white shadow-xs"
-                            : "text-[#7A6B6D] hover:text-[#D66D7D]"
-                        }`}
+                        className={`flex-1 py-1.5 px-2 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${viewMode === "stream"
+                          ? "bg-gradient-to-r from-[#D66D7D] to-[#E07A8A] text-white shadow-xs"
+                          : "text-[#7A6B6D] hover:text-[#D66D7D]"
+                          }`}
                       >
                         <span>📜</span>
                         <span>Feed</span>
@@ -586,11 +587,10 @@ export default function Timeline() {
                           localStorage.setItem("timeline_view", "scrapbook");
                           setShowDropdown(false);
                         }}
-                        className={`flex-1 py-1.5 px-2 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
-                          viewMode === "scrapbook"
-                            ? "bg-gradient-to-r from-[#D66D7D] via-[#E07A8A] to-[#F7BA9E] text-white shadow-xs"
-                            : "text-[#7A6B6D] hover:text-[#D66D7D]"
-                        }`}
+                        className={`flex-1 py-1.5 px-2 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${viewMode === "scrapbook"
+                          ? "bg-gradient-to-r from-[#D66D7D] via-[#E07A8A] to-[#F7BA9E] text-white shadow-xs"
+                          : "text-[#7A6B6D] hover:text-[#D66D7D]"
+                          }`}
                       >
                         <span>📖</span>
                         <span>Scrapbook</span>
@@ -860,7 +860,7 @@ export default function Timeline() {
                   className="px-4 py-2 rounded-2xl glass-pill text-xs font-bold text-[#D66D7D] hover:border-[#D66D7D]/40 transition-colors flex items-center gap-1.5 cursor-pointer shadow-xs active:scale-95"
                 >
                   <span>📷</span>
-                  <span className="inline">Photo / Video</span>
+                  <span className="inline">Add Media</span>
                 </label>
 
                 <button
@@ -1146,7 +1146,11 @@ export default function Timeline() {
         isOpen={showCoffeeModal}
         onClose={() => setShowCoffeeModal(false)}
       />
+
+      {/* Whimsical Ambient Music Box Player */}
+      <WhimsicalMusicPlayer />
     </div>
   );
 }
+
 
